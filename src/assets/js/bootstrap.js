@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   const gameConsole = new GameConsole(application, '#game-console');
-  gameConsole.addEntry('Hello world');
+  gameConsole.addEntry('<em>Hello my friend, what can I do for you ?</em>');
 
   application.addEventListener('map.update', (event) => {
     // console.log(event);

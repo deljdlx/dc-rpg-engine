@@ -16,8 +16,13 @@ services:
       - "traefik.http.routers.rpg-engine.tls.certresolver=myresolver"
     networks:
       - web
+      - docker-api
 
 networks:
   web:
     name: web
     external: true
+  docker-api:
+    name: docker-api
+    external: true
+
