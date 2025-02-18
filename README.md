@@ -1,27 +1,59 @@
-# The seal
+# 🎮 RPG Engine
 
-## Install
-Connect to docker container and run the following command:
+<!--<SHORT-PRESENTATION>-->
+A Modest Yet Overengineered RPG Engine
 
-```sh
-docker exec -it {{the-seal}} sh
+A browser-based RPG engine, built with **pure JavaScript, CSS & HTML**.  
+No WebGL, no Canvas, just DOM magic.
+<!--</SHORT-PRESENTATION>-->
 
-# inside the container
+---
 
-cd /src
-npm install
-# because its a very old project, we need to use the legacy provider
-export NODE_OPTIONS=--openssl-legacy-provider
-npm run build
-```
+## 🔹 Features (aka "What actually works")  
 
-## Some examples
+- 🎭 **2D RPG engine** → A fully functional tile-based world  
+- ⚡ **Optimized Collision System** → Because walking through walls is cheating  
+- 🤖 **Basic NPC System** → They exist, they stand around, they might even talk someday  
+- 💾 **JSON-based map storage** → Save & reload maps like a pro  
 
-http://the-seal.jlb.ninja/static/?&containerColor0=%232D3C57CD&containerColor1=%23000000FF&text=The%20Seal&image=https%3A%2F%2Fec.europa.eu%2Fjrc%2Fsites%2Fdefault%2Ffiles%2Fstyles%2Fnormal-responsive%2Fpublic%2Ffotolia-92027264european-day-forest-green-forest.jpg%3Fitok%3Dp4u8v1R5&radius=149&crownRadius=231&titleRadius=156&gearSize=81&crownSkewX=53&crownSkewY=0&crownScaleX=77&crownScaleY=8&gearRadius=25&gearBorder=5&borderColor=%2366E3FFFF&borderSize=48&crownColor=%23FFAAAA94&textColor=%23F53C3CFF&rotationSpeed=3
+---
 
-http://the-seal.jlb.ninja/static/?&containerColor0=%232D3C57CD&containerColor1=%23000000FF&text=The%20Seal&image=https%3A%2F%2Fec.europa.eu%2Fjrc%2Fsites%2Fdefault%2Ffiles%2Fstyles%2Fnormal-responsive%2Fpublic%2Ffotolia-92027264european-day-forest-green-forest.jpg%3Fitok%3Dp4u8v1R5&radius=149&crownRadius=163&titleRadius=272&gearSize=10&crownSkewX=53&crownSkewY=0&crownScaleX=77&crownScaleY=8&gearRadius=25&gearBorder=5&borderColor=%239F66FFFF&borderSize=14&crownColor=%23FFAAAA94&textColor=%23FFFFFFFF&rotationSpeed=3
+## 📌 Why This Exists (aka "I just wanted to test something, okay?")  
 
-http://the-seal.jlb.ninja/static/?&containerColor0=%23C46BCFFF&containerColor1=%2346C1FFFF&text=The%20Seal&image=https%3A%2F%2Fmedia3.giphy.com%2Fmedia%2F3oKIPjzfv0sI2p7fDW%2F200.gif&radius=127&crownRadius=173&titleRadius=282&gearSize=205&crownSkewX=89&crownSkewY=9&crownScaleX=0&crownScaleY=161&gearRadius=0&gearBorder=17&borderColor=%23693655B7&borderSize=21&crownColor=%23D37AD07B&textColor=%23C56EC5FF&rotationSpeed=14
+This project started as **a simple test**… and then I spent way too much time tweaking collisions.  
 
-http://the-seal.jlb.ninja/static/?&containerColor0=%2312FFC2FF&containerColor1=%23000000FF&text=The%20Seal&image=https%3A%2F%2Fec.europa.eu%2Fjrc%2Fsites%2Fdefault%2Ffiles%2Fstyles%2Fnormal-responsive%2Fpublic%2Ffotolia-92027264european-day-forest-green-forest.jpg%3Fitok%3Dp4u8v1R5&radius=129&crownRadius=150&titleRadius=239&gearSize=33&crownSkewX=91&crownSkewY=0&crownScaleX=190&crownScaleY=183&gearRadius=100&gearBorder=5&borderColor=%23FFFFFFFF&borderSize=8&crownColor=%23FFAAAAFF&textColor=%23FF00FFFF&rotationSpeed=20# dc-the-seal
-# rpg-engine
+- **No external libraries** → Just pure JavaScript pain  
+- **Runs entirely in the browser** → No setup, no dependencies, no WebGL  
+- **Might be useful for something… someday**  
+
+🛑 **WARNING:**  
+- This is a **Proof of Concept** (POC).  
+- Do **not** expect a fully functional RPG maker.  
+- Some NPCs might judge you silently.  
+
+---
+
+## 🛠️ Tech Stack  
+
+- 🕸️ **Pure HTML/CSS/JS** → Because real devs suffer without frameworks  
+- 🗂️ **JSON-based storage** → Maps & objects are fully modular  
+- ⚡ **Optimized collision detection** → No more accidental wall-phasing  
+- 🖌️ **Built-in Map Editor** → Because editing maps in raw JSON is barbaric  
+- 🎨 **CSS-based rendering** → No Canvas, no WebGL, just clean DOM manipulation  
+
+---
+
+## 🚀 Try the Demo  
+
+🕹️ Demo: [https://rpg-engine.jlb.ninja/](https://rpg-engine.jlb.ninja/)  
+
+---
+
+## 📝 Future Improvements (or "Things I might add if I get bored")  
+
+- 🚶‍♂️ **Better NPC AI** → Right now, they are glorified statues  
+- 🏰 **More interactive elements** → Chests? Doors? Quests? Maybe  
+- 🔥 **Event System** → Because RPGs need drama  
+- 🏆 **Actual gameplay mechanics** → Walking around is fun, but let’s be real  
+
+---
