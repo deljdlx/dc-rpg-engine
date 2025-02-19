@@ -67,12 +67,10 @@ class Viewport
    * @param {number} width
    * @param {number} height
    */
-  constructor(application, container, width = 500, height = 500)
-  {
+  constructor(application, container, width = 500, height = 500) {
     this._application = application;
 
     this.container = container;
-    this.board = new Board(this);
     this.geometry = new Geometry(0, 0);
     this.geometry.x(0);
     this.geometry.y(0);
@@ -86,6 +84,8 @@ class Viewport
     this.character.y(this.height() / 2);
     this.character.moveSpeed(300);
     this.character.setApplication(this.getApplication());
+
+    this.board = new Board(this);
   }
 
   // ===========================

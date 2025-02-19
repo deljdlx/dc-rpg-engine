@@ -14,6 +14,11 @@ class Renderer
   /**
    * @type {DomElement}
    */
+  innerContent;
+
+  /**
+   * @type {DomElement}
+   */
   domShadow;
 
   /**
@@ -45,6 +50,10 @@ class Renderer
     this._element = element;
     this.dom = document.createElement('div');
     this.dom.classList.add('map-element');
+
+    this.innerContent = document.createElement('div');
+    this.innerContent.classList.add('map-element__inner-content');
+    this.dom.append(this.innerContent);
 
     this.domSprite = document.createElement('div');
     this.domSprite.classList.add('map-element__sprite');
@@ -125,6 +134,10 @@ class Renderer
     return this._element;
   }
 
+  addClass(className) {
+    this.dom.classList.add(className);
+  }
+
 
   renderBoundingBox() {
     this.boundingBox = document.createElement('div');
@@ -170,6 +183,11 @@ class Renderer
     });
 
     return this.collisiondDom;
+  }
+
+  setInnerHTML(html) {
+    this.innerContent.innerHTML = html;
+    this.innerContent.style.minWidth = this._element.width() + 'px';
   }
 }
 

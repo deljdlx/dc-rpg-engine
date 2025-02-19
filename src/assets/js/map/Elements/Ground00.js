@@ -1,7 +1,7 @@
 class Ground00 extends Element
 {
   constructor() {
-    super(0, 0 , 50, 48);
+    super(0, 0 , 50, 50);
     this.manualZ = true;
   }
 

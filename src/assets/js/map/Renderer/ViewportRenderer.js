@@ -47,6 +47,7 @@ class ViewportRenderer
   }
 
   update() {
+    this._board = this._viewport.getBoard();
     const left = -this._viewport.x();
     const top = -this._viewport.y();
 
@@ -67,7 +68,6 @@ class ViewportRenderer
 
     this._viewport.getCharacter().getRenderer().getDom().style.transform =
       `translateZ(${-zIndex}px) translateX(${characterLeft}px) translateY(${characterTop}px)`;
-
 
     this._board.getRenderer().getDom().style.transform = `translateX(${left}px) translateY(${top}px)`;
 

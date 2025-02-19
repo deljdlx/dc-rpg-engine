@@ -1,5 +1,6 @@
 class Element
 {
+  data = {};
 
   _application;
 
@@ -138,6 +139,15 @@ class Element
   getDom() {
     return this.dom;
   }
+
+  setInnerHTML(html) {
+    this.renderer.setInnerHTML(html);
+  }
+
+  addClass(className) {
+    this.renderer.addClass(className);
+  }
+
 
   registerEvents() {
     this.dom.addEventListener('click', (event) => {
@@ -557,7 +567,7 @@ class Element
 
   getChildByName(name) {
     if(typeof(this.childrenByName[name]) ==='undefined') {
-      throw new Exception('No element with name ' + name);
+      throw new Error('No element with name ' + name);
     }
     return this.childrenByName[name];
   }

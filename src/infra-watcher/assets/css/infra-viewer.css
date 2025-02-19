@@ -1,0 +1,63 @@
+.map-element.network {
+  /* transition: all; */
+  opacity: 0.7;
+  /* animation: flow 5s linear infinite; */
+  will-change: opacity;
+}
+.map-element.network--web {
+  filter: sepia(1) hue-rotate(180deg) saturate(3);
+}
+
+.map-element.network--global {
+  filter: sepia(1) hue-rotate(90deg) saturate(3);
+}
+
+.map-element.network--docker-api {
+  filter: sepia(1) hue-rotate(-45deg) saturate(3);
+}
+
+
+.map-element.state--created {
+  filter: grayscale(100%);
+}
+
+
+/* Animation du "flux de données" */
+@keyframes flow {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+
+.map-element.network:nth-child(10n) {
+  animation-delay: 0.2s;
+}
+.map-element.network:nth-child(10n+1) {
+  animation-delay: 0.4s;
+}
+.map-element.network:nth-child(10n+2) {
+  animation-delay: 0.6s;
+}
+.map-element.network:nth-child(10n+3) {
+  animation-delay: 0.8s;
+}
+.map-element.network:nth-child(10n+4) {
+  animation-delay: 1s;
+}
+.map-element.network:nth-child(5n+5) {
+  animation-delay: 1s;
+}
+.map-element.network:nth-child(5n+6) {
+  animation-delay: 1.2s;
+}
+.map-element.network:nth-child(5n+7) {
+  animation-delay: 1.4s;
+}
+.map-element.network:nth-child(5n+8) {
+  animation-delay: 1.6s;
+}
+.map-element.network:nth-child(5n+9) {
+  animation-delay: 1.8s;
+}
+

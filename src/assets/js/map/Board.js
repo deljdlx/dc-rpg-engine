@@ -3,7 +3,7 @@ class Board extends Element
   areas = {};
 
   constructor(viewport) {
-    super(0, 0, 800, 800);
+    super(0, 0, viewport.width(), viewport.height());
     this._viewport = viewport;
     this._application = viewport.getApplication();
 
