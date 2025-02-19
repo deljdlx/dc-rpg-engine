@@ -148,18 +148,21 @@
 
 
 
-.container.state--created .map-element__sprite{
+.container.state--created .map-element__sprite,
+.container.state--exited .map-element__sprite  {
   filter: grayscale(100%);
   border-radius: 50%;
   animation: pulsar 1.5s infinite ease-in-out;
 
 }
-.container.state--created .docker-container-name::before {
+.container.state--created .docker-container-name::before,
+.container.state--exited .docker-container-name::before {
   content: "💩";
   font-size: 1rem;
 }
 
-.container.state--created::before {
+.container.state--created::before,
+.container.state--exited::before {
   display: block;
   content: " ";
   width: calc(100% + 60px);
