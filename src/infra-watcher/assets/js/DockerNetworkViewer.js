@@ -1,5 +1,6 @@
 class DockerNetworkViewer
 {
+  application;
   viewport;
 
   cellWidth = 150;
@@ -15,11 +16,23 @@ class DockerNetworkViewer
   xCells = 0;
   yCells = 0;
 
+  memoryUsageThresholds = [
+    {thresholds: 4 * 1024 *1024, caption: '4mb', humanCaption: 'xxs'},
+    {thresholds: 8 * 1024 *1024, caption: '8mb', humanCaption: 'xs'},
+    {thresholds: 16 * 1024 *1024, caption: '16mb', humanCaption: 's'},
+    {thresholds: 32 * 1024 *1024, caption: '32mb', humanCaption: 'm'},
+    {thresholds: 64 * 1024 *1024, caption: '64mb', humanCaption: 'xm'},
+    {thresholds: 128 * 1024 *1024, caption: '128mb', humanCaption: 'xxm'},
+    {thresholds: 256 * 1024 *1024, caption: '256mb', humanCaption: 'l'},
+    {thresholds: 512 * 1024 *1024, caption: '512mb', humanCaption: 'xl'},
+    {thresholds: 1024 * 1024 *1024, caption: '1024mb', humanCaption: 'xxl'},
+    {thresholds: 2048 * 1024 *1024, caption: '2048mb', humanCaption: 'xxxl'},
+  ]
 
-  constructor(viewport) {
+
+  constructor(application, viewport) {
+    this.application = application;
     this.viewport = viewport;
-    // this.xCells = Math.ceil(this.layoutWidth / this.cellWidth);
-    // this.yCells = Math.ceil(this.layoutHeight / this.cellHeight);
 
     this.xCells = 15;
     this.yCells = 15;
@@ -67,7 +80,19 @@ class DockerNetworkViewer
     }
   }
 
-  drawContainers(containers) {
+  getMemoryThreshold(usage) {
+    let thresholdIndex = 0;
+    this.memoryUsageThresholds.map((threshold) => {
+      if(usage < threshold.thresholds) {
+        return threshold;
+      }
+      thresholdIndex++;
+    });
+
+    return this.memoryUsageThresholds[thresholdIndex] ?? this.memoryUsageThresholds[this.memoryUsageThresholds.length - 1];
+  }
+
+  async drawContainers(containers) {
     const board = this.viewport.getBoard();
     const area = board.getAreaAt(0, 0);
 
@@ -79,7 +104,7 @@ class DockerNetworkViewer
     let maxY = BigInt(Number.MIN_SAFE_INTEGER);
 
 
-    containers.map((container, index) => {
+    Object.values(containers).map((container) => {
       let containerId = container.Id;
       let containerLeft = BigInt('0x' + containerId.substring(0,32))
       let containerRight = BigInt('0x' + containerId.substring(32,64));
@@ -92,7 +117,7 @@ class DockerNetworkViewer
     const rangeX = maxX - minX;
     const rangeY = maxY - minY;
 
-    containers.map((container, index) => {
+    Object.values(containers).map(async (container) => {
       let containerId = container.Id;
       let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
       let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
@@ -126,6 +151,8 @@ class DockerNetworkViewer
         new House00()
       );
 
+      // house.addClass('smoke');
+
       if(!container.rpgEngine) {
         container.rpgEngine = {
           data: {
@@ -138,6 +165,26 @@ class DockerNetworkViewer
         };
       }
 
+      const stats = await this.application.getContainerStats(container.Id);
+      console.log('%cDockerNetworkViewer.js :: 144 =============================', 'color: #f00; font-size: 1rem');
+      console.log(stats);
+
+      const memoryUsage = stats.memory_stats.usage;
+      if(memoryUsage) {
+        const memoryThreshold = this.getMemoryThreshold(memoryUsage);
+        console.log('%cDockerNetworkViewer.js :: 148 =============================', 'color: #f0f; font-size: 1rem');
+        console.log(memoryUsage);
+        console.log(memoryThreshold);
+
+        house.addClass('memory--' + memoryThreshold.humanCaption);
+        house.addClass('memory--' + memoryThreshold.caption);
+      }
+
+      house.addClass('container');
+      for(let networkName in container.NetworkSettings.Networks) {
+        house.addClass('network--' + networkName);
+      }
+
       house.addClass('state--' + container.State)
       house.setInnerHTML(`
         <div class="docker-container-name">
@@ -148,10 +195,6 @@ class DockerNetworkViewer
 
       layoutMatrix[x][y].push(house);
     });
-
-    this.drawRoads(containers);
-
-    this.viewport.render();
   }
 
 
@@ -159,7 +202,7 @@ class DockerNetworkViewer
 
     const networks = {};
 
-    containers.map((container, index) => {
+    Object.values(containers).map((container, index) => {
       let containerNetWorks = container.NetworkSettings.Networks;
       containerNetWorks = Object.keys(containerNetWorks).map((networkName) => {
         if(!networks[networkName]) {
@@ -170,7 +213,7 @@ class DockerNetworkViewer
     });
 
 
-    let hasElementMatrix = {};
+    const roadsMatrix = {};
 
     Object.keys(networks).map((networkName) => {
       const connectedCells = [];
@@ -184,6 +227,7 @@ class DockerNetworkViewer
       let offsetLeft = fromContainer.rpgEngine.data.element.width() / 2;
       let offsetTop = fromContainer.rpgEngine.data.element.height();
 
+
       for(let i = 1 ; i < connectedCells.length ; i++) {
 
         const toContainer = networks[networkName][i];
@@ -195,87 +239,142 @@ class DockerNetworkViewer
         let xToInPixels = to.x * this.cellWidth;
         let yToInPixels = to.y * this.cellHeight;
 
-        let xDiff = xToInPixels - xFromInPixels;
-        let yDiff = yToInPixels - yFromInPixels;
+        xFromInPixels = this.drawHorizontalRoads(
+          networkName,
+          xFromInPixels, xToInPixels,
+          yFromInPixels,
+          offsetLeft, offsetTop,
+          roadsMatrix
+        );
 
-        let xDirection = xDiff > 0 ? 1 : -1;
-        let yDirection = yDiff > 0 ? 1 : -1;
-
-        let currentRoadX = xFromInPixels;
-        let currentRoadY = yFromInPixels;
-
-        let noLockX = 0
-        while (Math.abs(currentRoadX - xToInPixels) > this.roadWidth) {
-          const key = currentRoadX + ':' + currentRoadY
-          if(noLockX > 100) {
-            console.error('loop detected on X');
-            break;
-          }
-          noLockX++;
-
-          const road = this.drawRoad(
-            networkName,
-            currentRoadX + offsetLeft,
-            currentRoadY + offsetTop,
-          )
-          currentRoadX += this.roadWidth * xDirection;
-          hasElementMatrix[key] = true;
-        }
-
-        let noLockY = 0
-        while(Math.abs(currentRoadY - yToInPixels) >= this.roadHeight) {
-          const key = currentRoadX + ':' + currentRoadY
-          if(noLockY > 100) {
-            console.error('loop detected on Y');
-            break;
-          }
-          noLockY++;
-
-          const road = this.drawRoad(
-            networkName,
-            currentRoadX + offsetLeft,
-            currentRoadY + offsetTop,
-          )
-
-          currentRoadY += this.roadHeight * yDirection;
-          hasElementMatrix[key] = true;
-        }
-
-        if(yDirection < 1) {
-          const key = currentRoadX + ':' + currentRoadY
-          const road = area.addElement(
-            currentRoadX + offsetLeft,
-            currentRoadY + offsetTop,
-            new Ground00()
-          );
-          road.addClass('network');
-          road.addClass('network--' + networkName);
-          hasElementMatrix[key] = true;
-        }
+        this.drawHVerticalRoads(
+          networkName,
+          yFromInPixels, yToInPixels,
+          xFromInPixels,
+          offsetLeft, offsetTop,
+          roadsMatrix
+        )
         from = connectedCells[i];
       }
     });
+
+    this.drawRoadTrees(roadsMatrix);
   };
 
-  drawHorizontalRoads(networkName, fromX, toX, offsetLeft, offsetTop) {
+  drawRoadTrees(matrix) {
+    const area = this.viewport.getBoard().getAreaAt(0, 0);
+
+    const width = this.roadWidth;
+    const height = this.roadHeight;
+
+    Object.keys(matrix).map((x) => {
+      Object.keys(matrix[x]).map((y) => {
+        const road = matrix[x][y];
+
+        if(Math.random() > 0.8) {
+          if(
+            (matrix[x + width] && matrix[x + width][y])
+            || (matrix[x -width] && matrix[x - width][y])
+
+            // || (matrix[x + width] && matrix[x + width][y - height]) ||
+            // || (matrix[x + width] && matrix[x + width][y]) ||
+            // || (matrix[x + width] && matrix[x + width][y + height]) ||
+
+            // || (matrix[x - width] && matrix[x - width][y - height]) ||
+            // || (matrix[x - width] && matrix[x - width][y]) ||
+            // || (matrix[x - width] && matrix[x - width][y + height])
+          ){
+            return;
+          }
+          const tree = area.addElement(
+            parseInt(x),
+            parseInt(y) + height * 2,
+            new Tree00()
+          );
+        }
+      });
+    });
+  }
+
+  drawHorizontalRoads(
+    networkName,
+    xFromInPixels, xToInPixels,
+    yFromInPixels,
+    offsetLeft, offsetTop,
+    roadsMatrix
+  ) {
+    let xDiff = xToInPixels - xFromInPixels;
+    let xDirection = xDiff > 0 ? 1 : -1;
+
     let noLockX = 0
-    while (Math.abs(fromX - toX) > this.roadWidth) {
+    while (Math.abs(xFromInPixels - xToInPixels) > this.roadWidth) {
       if(noLockX > 100) {
         console.error('loop detected on X');
         break;
       }
       noLockX++;
+      const road = this.drawRoad(
+        networkName,
+        xFromInPixels + offsetLeft,
+        yFromInPixels + offsetTop,
+      )
 
-      const road = area.addElement(
-        currentRoadX + offsetLeft,
-        currentRoadY + offsetTop,
-        new Ground00()
-      );
-      road.addClass('network');
-      road.addClass('network--' + networkName);
-      currentRoadX += this.roadWidth * xDirection;
+      if(!roadsMatrix[xFromInPixels]) {
+        roadsMatrix[xFromInPixels] = {};
+      }
+      roadsMatrix[xFromInPixels][yFromInPixels] = road;
+
+      xFromInPixels += this.roadWidth * xDirection;
+    }
+    return xFromInPixels;
+  }
+
+  drawHVerticalRoads(
+    networkName,
+    yFromInPixels, yToInPixels,
+    xFromInPixels,
+    offsetLeft, offsetTop,
+    roadsMatrix
+  ) {
+    let yDiff = yToInPixels - yFromInPixels;
+    let yDirection = yDiff > 0 ? 1 : -1;
+
+
+    let noLockY = 0
+    while(Math.abs(yFromInPixels - yToInPixels) >= this.roadHeight) {
+      if(noLockY > 100) {
+        console.error('loop detected on Y');
+        break;
+      }
+      noLockY++;
+
+      const road = this.drawRoad(
+        networkName,
+        xFromInPixels + offsetLeft,
+        yFromInPixels + offsetTop,
+      )
+
+      if(!roadsMatrix[xFromInPixels]) {
+        roadsMatrix[xFromInPixels] = {};
+      }
+      roadsMatrix[xFromInPixels][yFromInPixels] = road;
+
+      yFromInPixels += this.roadHeight * yDirection;
+    }
+
+    if(yDirection < 1) {
+      const road = this.drawRoad(
+        networkName,
+        xFromInPixels + offsetLeft,
+        yFromInPixels + offsetTop,
+      )
+      if(!roadsMatrix[xFromInPixels]) {
+        roadsMatrix[xFromInPixels] = [];
+      }
+      roadsMatrix[xFromInPixels][yFromInPixels] = road;
     }
   }
+
 
   drawRoad(networkName, x, y) {
     const area = this.viewport.getBoard().getAreaAt(0, 0);

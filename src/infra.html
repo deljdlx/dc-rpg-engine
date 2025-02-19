@@ -31,10 +31,16 @@
 </head>
 <body>
 
+    <div id="iframe-container" class="hidden">
+        <span id="close-iframe-container">❌</span>
+        <iframe id="iframe-preview" frameborder="0"></iframe>
+    </div>
+
+
     <div id="layout" style="display: flex; flex-direction:column">
-        <div>
-            HEADER
-        </div>
+
+        <div id="header"></div>
+
         <div style="position: relative; display: flex">
             <div class="frame-00" style="width: 300px">
                 <div id="game-console">
@@ -116,7 +122,9 @@
     <script src="assets/js/tools/GameConsole.js"></script>
 
 
+    <script src="infra-watcher/assets/js/Container.js"></script>
     <script src="infra-watcher/assets/js/DockerNetworkViewer.js"></script>
+    <script src="infra-watcher/assets/js/InfraWatcher.js"></script>
     <script src="infra-watcher/assets/js/bootstrap.js"></script>
 
 
