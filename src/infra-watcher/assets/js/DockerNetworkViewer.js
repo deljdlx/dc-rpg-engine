@@ -94,26 +94,7 @@ class DockerNetworkViewer
 
   async drawContainers(containers) {
     const layoutMatrix = this.initContainersMatrix();
-
-    let minX = BigInt(Number.MAX_SAFE_INTEGER);
-    let minY = BigInt(Number.MAX_SAFE_INTEGER);
-    let maxX = BigInt(Number.MIN_SAFE_INTEGER);
-    let maxY = BigInt(Number.MIN_SAFE_INTEGER);
-
-
-    Object.values(containers).map((container) => {
-      let containerId = container.Id;
-      let containerLeft = BigInt('0x' + containerId.substring(0,32))
-      let containerRight = BigInt('0x' + containerId.substring(32,64));
-      minX = containerLeft < minX ? containerLeft : minX;
-      minY = containerRight < minY ? containerRight : minY;
-      maxX = containerLeft > maxX ? containerLeft : maxX;
-      maxY = containerRight > maxY ? containerRight : maxY;
-    });
-
-    const rangeX = maxX - minX;
-    const rangeY = maxY - minY;
-
+    const {minX, minY, maxX, maxY} = this.getBounds(containers);
     const handledContainers = {};
 
     Object.values(containers).map(async (container) => {
@@ -121,17 +102,7 @@ class DockerNetworkViewer
         return;
       }
 
-      // let containerId = container.Id;
-      // let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
-      // let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
-
-      // let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
-      // let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
-
-      // x = Math.min(x, this.xCells - 1);
-      // y = Math.min(y, this.yCells - 1);
-
-      const {x, y} = this.computeContainerCoords(
+      let {x, y} = this.computeContainerCoords(
         container,
         minX,
         minY,
@@ -139,9 +110,8 @@ class DockerNetworkViewer
         maxY,
       );
 
-
       const composeName = container.getComposeName();
-      if(composeName && 0) {
+      if(composeName) {
         const compose = this.application.getCompose(composeName);
         if(compose) {
           const friendContainers = compose.getContainers();
@@ -153,27 +123,68 @@ class DockerNetworkViewer
         }
       }
 
-      let tryCount = 0;
-      while(layoutMatrix[x][y].length > 0 && tryCount < (x * y)) {
-        if(tryCount % 4 === 0) {
-          x += 1;
-        }
-        else if(tryCount % 4 == 1) {
-          y += 1;
-        }
-        else if(tryCount % 4 == 2) {
-          x -= 1;
-        }
-        else if(tryCount % 4 == 3) {
-          y -= 1;
-        }
-        tryCount++;
-      }
+      ({x, y} = this.getClosestFreeCoords(layoutMatrix, x, y));
+
       const house = await this.drawHouse(container, x, y);
       // house.addClass('smoke');
       layoutMatrix[x][y].push(house);
     });
   }
+
+  getBounds(containers) {
+    let minX = BigInt(Number.MAX_SAFE_INTEGER);
+    let minY = BigInt(Number.MAX_SAFE_INTEGER);
+    let maxX = BigInt(Number.MIN_SAFE_INTEGER);
+    let maxY = BigInt(Number.MIN_SAFE_INTEGER);
+
+    Object.values(containers).map((container) => {
+      let containerId = container.Id;
+      let containerLeft = BigInt('0x' + containerId.substring(0,32))
+      let containerRight = BigInt('0x' + containerId.substring(32,64));
+      minX = containerLeft < minX ? containerLeft : minX;
+      minY = containerRight < minY ? containerRight : minY;
+      maxX = containerLeft > maxX ? containerLeft : maxX;
+      maxY = containerRight > maxY ? containerRight : maxY;
+    });
+
+    return {minX, minY, maxX, maxY};
+  }
+
+  getClosestFreeCoords(layoutMatrix, startX, startY) {
+    const rows = layoutMatrix.length;
+    const cols = layoutMatrix[0].length;
+
+    let x = startX, y = startY;
+    let step = 1, dir = 0;
+
+    const directions = [
+      [1, 0],  // Droite
+      [0, 1],  // Bas
+      [-1, 0], // Gauche
+      [0, -1]  // Haut
+    ];
+
+    if (layoutMatrix[x][y].length === 0) return {x, y}; // Déjà libre
+
+    while (step < Math.max(rows, cols)) {
+      for (let i = 0; i < 2; i++) { // 2 fois chaque step avant d'incrémenter
+        for (let j = 0; j < step; j++) {
+          x += directions[dir][0];
+          y += directions[dir][1];
+
+          if (x >= 0 && y >= 0 && x < rows && y < cols && layoutMatrix[x][y].length === 0) {
+            return {x, y}; // Premier emplacement libre trouvé
+          }
+        }
+        dir = (dir + 1) % 4; // Tourner dans la spirale
+      }
+      step++; // Augmenter le pas après 2 itérations
+    }
+
+    return null; // Aucun espace libre trouvé
+  }
+
+
 
   computeContainerCoords(container, minX, minY, maxX, maxY) {
     let containerId = container.Id;
