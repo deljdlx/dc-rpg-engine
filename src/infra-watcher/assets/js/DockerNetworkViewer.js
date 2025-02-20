@@ -93,9 +93,6 @@ class DockerNetworkViewer
   }
 
   async drawContainers(containers) {
-    const board = this.viewport.getBoard();
-    const area = board.getAreaAt(0, 0);
-
     const layoutMatrix = this.initContainersMatrix();
 
     let minX = BigInt(Number.MAX_SAFE_INTEGER);
@@ -117,16 +114,44 @@ class DockerNetworkViewer
     const rangeX = maxX - minX;
     const rangeY = maxY - minY;
 
+    const handledContainers = {};
+
     Object.values(containers).map(async (container) => {
-      let containerId = container.Id;
-      let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
-      let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
+      if(handledContainers[container.Id]) {
+        return;
+      }
 
-      let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
-      let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
+      // let containerId = container.Id;
+      // let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
+      // let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
 
-      x = Math.min(x, this.xCells - 1);
-      y = Math.min(y, this.yCells - 1);
+      // let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
+      // let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
+
+      // x = Math.min(x, this.xCells - 1);
+      // y = Math.min(y, this.yCells - 1);
+
+      const {x, y} = this.computeContainerCoords(
+        container,
+        minX,
+        minY,
+        maxX,
+        maxY,
+      );
+
+
+      const composeName = container.getComposeName();
+      if(composeName && 0) {
+        const compose = this.application.getCompose(composeName);
+        if(compose) {
+          const friendContainers = compose.getContainers();
+
+          if(Object.values(friendContainers).length > 1) {
+            this.drawHouseGroup(layoutMatrix, friendContainers, x, y);
+            return;
+          }
+        }
+      }
 
       let tryCount = 0;
       while(layoutMatrix[x][y].length > 0 && tryCount < (x * y)) {
@@ -144,57 +169,74 @@ class DockerNetworkViewer
         }
         tryCount++;
       }
-
-      let house = area.addElement(
-        x * this.cellWidth,
-        y * this.cellHeight,
-        new House00()
-      );
-
+      const house = await this.drawHouse(container, x, y);
       // house.addClass('smoke');
-
-      if(!container.rpgEngine) {
-        container.rpgEngine = {
-          data: {
-            element: house,
-            coords: {
-              x: x,
-              y: y,
-            }
-          },
-        };
-      }
-
-      const stats = await this.application.getContainerStats(container.Id);
-      console.log('%cDockerNetworkViewer.js :: 144 =============================', 'color: #f00; font-size: 1rem');
-      console.log(stats);
-
-      const memoryUsage = stats.memory_stats.usage;
-      if(memoryUsage) {
-        const memoryThreshold = this.getMemoryThreshold(memoryUsage);
-        console.log('%cDockerNetworkViewer.js :: 148 =============================', 'color: #f0f; font-size: 1rem');
-        console.log(memoryUsage);
-        console.log(memoryThreshold);
-
-        house.addClass('memory--' + memoryThreshold.humanCaption);
-        house.addClass('memory--' + memoryThreshold.caption);
-      }
-
-      house.addClass('container');
-      for(let networkName in container.NetworkSettings.Networks) {
-        house.addClass('network--' + networkName);
-      }
-
-      house.addClass('state--' + container.State)
-      house.setInnerHTML(`
-        <div class="docker-container-name">
-          ${container.Names[0]}
-        </div>
-      `);
-      house.data.container = container;
-
       layoutMatrix[x][y].push(house);
     });
+  }
+
+  computeContainerCoords(container, minX, minY, maxX, maxY) {
+    let containerId = container.Id;
+    let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
+    let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
+
+    const rangeX = maxX - minX;
+    const rangeY = maxY - minY;
+
+    let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
+    let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
+
+    x = Math.min(x, this.xCells - 1);
+    y = Math.min(y, this.yCells - 1);
+
+    return {x, y};
+  }
+
+  async drawHouseGroup(layoutMatrix, containers) {
+
+  }
+
+  async drawHouse(container, x, y) {
+    const board = this.viewport.getBoard();
+    const area = board.getAreaAt(0, 0);
+
+    let house = area.addElement(
+      x * this.cellWidth,
+      y * this.cellHeight,
+      new House00()
+    );
+
+    container.setRpgEngineData({
+      element: house,
+      coords: {
+        x: x,
+        y: y,
+      }
+    });
+
+    const stats = await this.application.getContainerStats(container.Id);
+
+    const memoryUsage = stats.memory_stats.usage;
+    if(memoryUsage) {
+      const memoryThreshold = this.getMemoryThreshold(memoryUsage);
+      house.addClass('memory--' + memoryThreshold.humanCaption);
+      house.addClass('memory--' + memoryThreshold.caption);
+    }
+
+    house.addClass('container');
+    for(let networkName in container.NetworkSettings.Networks) {
+      house.addClass('network--' + networkName);
+    }
+
+    house.addClass('state--' + container.State)
+    house.setInnerHTML(`
+      <div class="docker-container-name">
+        ${container.Names[0]}
+      </div>
+    `);
+    house.data.container = container;
+
+    return house;
   }
 
 
@@ -221,15 +263,24 @@ class DockerNetworkViewer
         connectedCells.push(container.rpgEngine.data.coords);
       });
 
-      const area = this.viewport.getBoard().getAreaAt(0, 0);
+      if(!networks[networkName][0]) {
+        return;
+      }
+
       let from = connectedCells[0];
       let fromContainer = networks[networkName][0];
+      if(!fromContainer.rpgEngine.data.element) {
+        return;
+      }
+
       let offsetLeft = fromContainer.rpgEngine.data.element.width() / 2;
       let offsetTop = fromContainer.rpgEngine.data.element.height();
 
 
       for(let i = 1 ; i < connectedCells.length ; i++) {
-
+        if(!networks[networkName][i]) {
+          continue;
+        }
         const toContainer = networks[networkName][i];
         let to = connectedCells[i];
 

@@ -9,7 +9,7 @@ class InfraWatcher
   containers = {};
   containersStats = {};
 
-
+  composes = {};
   networks = {};
 
   selectedNetworks = {};
@@ -39,10 +39,16 @@ class InfraWatcher
     await this.viewer.drawRoads(this.containers);
 
     this.rpgEngine.getViewport().render();
-
-
     this.drawNetworksSwitches();
+
+    console.log('%cInfraWatcher.js :: 44 =============================', 'color: #f00; font-size: 1rem');
+    console.log(this);
   }
+
+  getCompose(composeName) {
+    return this.composes[composeName] || null;
+  }
+
 
   getContainerStats(containerId) {
     return this.containersStats[containerId];
@@ -55,6 +61,15 @@ class InfraWatcher
     containers.map(containerDescriptor => {
 
       const container = new Container(containerDescriptor);
+
+      const composeName = container.getComposeName();
+      if(composeName) {
+        if(!this.composes[composeName]) {
+          this.composes[composeName] = new DockerCompose(composeName);
+        }
+        this.composes[composeName].addContainer(container);
+      }
+
       this.containers[container.Id] = container;
 
       const networks = container.NetworkSettings.Networks;
