@@ -78,8 +78,14 @@
 
 .container .container__memory-usage {
   position: absolute;
-  bottom: 0;
+  bottom: 20px;
+  left: 25px;
   z-index: 1000000;
+  background-color: #0008;
+  padding: 2px 4px;
+  color: #fff;
+  border: solid 1px #fff;
+  border-radius: 4px;
 }
 
 
@@ -110,10 +116,34 @@
 }
 
 .container.memory--xm .map-element__sprite{
-  filter: sepia(1) hue-rotate(10deg) saturate(3);
+  filter: sepia(1) hue-rotate(45deg) saturate(3);
 }
 
 .container.memory--xm::before {
+  display: block;
+  content: " ";
+  width: calc(100% + 60px);
+  height: calc(100% + 60px);
+  top: -38px;
+  left: -38px;
+  border : solid 10px #aca;
+  border-radius: 50%;
+  position: absolute;
+  background-color: #aca8;
+}
+
+/* =============================================== */
+.container.memory--xxm .container__name::before {
+  content: "☁️";
+  font-size: 1rem;
+}
+.container.memory--xxm .map-element__sprite{
+  filter: sepia(1) hue-rotate(0deg) saturate(3);
+  border-radius: 50%;
+
+  animation: pulsar 1.5s infinite ease-in-out;
+}
+.container.memory--xxm::before {
   display: block;
   content: " ";
   width: calc(100% + 60px);
@@ -125,21 +155,19 @@
   position: absolute;
   background-color: #ff08;
 }
-
-
-
 /* =============================================== */
-.container.memory--xxm .container__name::before {
-  content: "☁️";
+
+.container.memory--xl .container__name::before {
+  content: "🌧️";
   font-size: 1rem;
 }
-.container.memory--xxm .map-element__sprite{
+.container.memory--xl .map-element__sprite{
   filter: sepia(1) hue-rotate(-35deg) saturate(3);
 
   animation: pulsar 1.5s infinite ease-in-out;
   border-radius: 50%;
 }
-.container.memory--xxm::before {
+.container.memory--xl::before {
   display: block;
   content: " ";
   width: calc(100% + 60px);
@@ -152,6 +180,8 @@
   background-color: #fa08;
 }
 /* =============================================== */
+
+
 
 
 
