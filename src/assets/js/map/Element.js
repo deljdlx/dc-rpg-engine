@@ -109,10 +109,21 @@ class Element
     this.boundingBox = new BoundingBox(this);
   }
 
+  clear() {
+    this.getRenderer().clear();
+    this.children.forEach(child => {
+      child.clear();
+    });
+  }
+
   destroy() {
     if(this.parent) {
       this.parent.removeChild(this);
     }
+
+    this.children = [];
+    this.childrenByName = {};
+
     this.getRenderer().clear();
   }
 

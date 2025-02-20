@@ -16,6 +16,8 @@ class InfraWatcher
 
   header;
 
+  lastContainersChecksum = null;
+
 
   constructor() {
     this.iframeContainer = document.querySelector('#iframe-container');
@@ -26,23 +28,51 @@ class InfraWatcher
     this.init();
   }
 
+  clear() {
+    Object.values(this.containers).map(container => {
+      delete this.containers[container.Id];
+      container.destroy();
+    });
+  }
+
   async init() {
     await this.initRpgEngine();
+    this.viewer = new DockerNetworkViewer(this, this.rpgEngine.getViewport());
     await this.loadContainers();
     const stats = await this.getAllContainersStats();
     stats.map(stat => {
       this.containersStats[stat.id] = stat;
     });
 
-    this.viewer = new DockerNetworkViewer(this, this.rpgEngine.getViewport());
     await this.viewer.drawContainers(this.containers);
-    await this.viewer.drawRoads(this.containers);
-
-    this.rpgEngine.getViewport().render();
+    await this.viewer.drawNetworks(this.containers);
+    await this.rpgEngine.getViewport().render();
     this.drawNetworksSwitches();
 
-    console.log('%cInfraWatcher.js :: 44 =============================', 'color: #f00; font-size: 1rem');
-    console.log(this);
+    await this.loop();
+  }
+
+  async loop() {
+    console.log(
+      '%c' +
+      (new Date()).toLocaleTimeString() +
+      "LOOP",
+      'color: #f00; font-size: 1rem'
+    );
+
+    const currentChecksum = await this.getChecksum();
+
+    await this.loadContainers();
+
+    const newChecksum = await this.getChecksum();
+
+    if(currentChecksum !== newChecksum) {
+      document.location.reload();
+    }
+
+    setTimeout(() => {
+      this.loop();
+    }, 5000);
   }
 
   getCompose(composeName) {
@@ -56,12 +86,15 @@ class InfraWatcher
 
 
   async loadContainers() {
-    const containers = await this.getContainersDescriptors();
 
+    const containers = await this.getContainersDescriptors();
     containers.map(containerDescriptor => {
 
-      const container = new Container(containerDescriptor);
+      if(this.containers[containerDescriptor.Id]) {
+        return;
+      }
 
+      const container = new Container(containerDescriptor);
       const composeName = container.getComposeName();
       if(composeName) {
         if(!this.composes[composeName]) {
@@ -81,11 +114,34 @@ class InfraWatcher
         this.networks[networkName].push(container);
       });
     });
+
+    const descriptor = {
+      ids: containers.map(container => container.Id),
+      networks: containers.map(container => container.NetworkSettings.Networks),
+      labels: containers.map(container => container.Labels),
+    };
+
+    console.log('%cInfraWatcher.js :: 124 =============================', 'color: #f00; font-size: 1rem');
+    console.log(descriptor);
+
+    const newChecksum = await this.getChecksum(descriptor);
+    if(this.lastContainersChecksum === null) {
+      this.lastContainersChecksum = newChecksum
+    }
+
+    if(this.lastContainersChecksum !== newChecksum) {
+      document.location.reload();
+    }
+    this.lastContainersChecksum = newChecksum;
   }
 
   drawNetworksSwitches() {
-    const container = document.createElement('div');
-    container.classList.add('networks-switches');
+    let container = document.querySelector('.networks-switches');
+    if(!container) {
+      container = document.createElement('div');
+      container.classList.add('networks-switches');
+    }
+    container.innerHTML = '';
     Object.keys(this.networks).map(networkName => {
       const label = document.createElement('label');
       label.classList.add('network-switch');
@@ -272,16 +328,15 @@ class InfraWatcher
             .then(res => res.json())
             .catch(() => null)
     );
-
     const stats = await Promise.all(statsPromises);
+
     return stats.filter(stat => stat !== null);
   }
 
   async loadContainerStats(containerId) {
     const response = await fetch(`/api/docker/containers/${containerId}/stats?stream=false`);
     const stats = await response.json();
-    console.log('%cbootstrap.js :: 14 =============================', 'color: #f00; font-size: 1rem');
-    console.log(stats);
+
     return stats;
   }
 
@@ -344,5 +399,19 @@ class InfraWatcher
 
   hideIframe() {
     this.iframeContainer.classList.add('hidden');
+  }
+
+  async getChecksum(object) {
+    const json = JSON.stringify(object);
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(json); // Encoder en Uint8Array
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+    const hash = [...new Uint8Array(hashBuffer)] // Convertir en hex
+      .map(byte => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+    return hash;
   }
 }

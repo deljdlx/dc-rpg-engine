@@ -25,6 +25,10 @@ class ViewportRenderer
     this._board = this._viewport.getBoard();
   }
 
+  clear() {
+    this._container.innerHTML = '';
+  }
+
   /**
    * @param {DomElement} container
    */

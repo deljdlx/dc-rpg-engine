@@ -58,12 +58,12 @@
   /* z-index: 1000000; */
 }
 
-.map-element:hover > .map-element__inner-content .docker-container-name {
+.map-element:hover > .map-element__inner-content .container__name {
   transform: scale(1.4);
   background-color: #000f;
 }
 
-.docker-container-name {
+.container .container__name {
   top: -60px;
   position: absolute;
   background-color: #0008;
@@ -76,28 +76,35 @@
 }
 
 
+.container .container__memory-usage {
+  position: absolute;
+  bottom: 0;
+  z-index: 1000000;
+}
+
+
 /* ========================================================== */
 
 
-.container.memory--xxs .docker-container-name::before {
+.container.memory--xxs .container__name::before {
   content: "🌈";
   font-size: 1rem;
 }
-.container.memory--xs .docker-container-name::before {
+.container.memory--xs .container__name::before {
   content: "🌟";
   font-size: 1rem;
 }
-.container.memory--s .docker-container-name::before {
+.container.memory--s .container__name::before {
   content: "🌞";
   font-size: 1rem;
 }
-.container.memory--m .docker-container-name::before {
+.container.memory--m .container__name::before {
   content: "☀️";
   font-size: 1rem;
 }
 
 /* =============================================== */
-.container.memory--xm .docker-container-name::before {
+.container.memory--xm .container__name::before {
   content: "⛅";
   font-size: 1rem;
 }
@@ -122,7 +129,7 @@
 
 
 /* =============================================== */
-.container.memory--xxm .docker-container-name::before {
+.container.memory--xxm .container__name::before {
   content: "☁️";
   font-size: 1rem;
 }
@@ -155,8 +162,8 @@
   animation: pulsar 1.5s infinite ease-in-out;
 
 }
-.container.state--created .docker-container-name::before,
-.container.state--exited .docker-container-name::before {
+.container.state--created .container__name::before,
+.container.state--exited .container__name::before {
   content: "💩";
   font-size: 1rem;
 }

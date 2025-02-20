@@ -88,6 +88,11 @@ class Viewport
     this.board = new Board(this);
   }
 
+  clear() {
+    this.renderer.clear();
+    this.board.clear();
+  }
+
   // ===========================
   addEventListener(name, callback) {
     if(typeof(this._listeners[name]) === 'undefined') {

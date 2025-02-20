@@ -29,6 +29,13 @@ class DockerNetworkViewer
     {thresholds: 2048 * 1024 *1024, caption: '2048mb', humanCaption: 'xxxl'},
   ]
 
+  bounds = {
+    minX: BigInt(Number.MAX_SAFE_INTEGER),
+    minY: BigInt(Number.MAX_SAFE_INTEGER),
+    maxX: BigInt(Number.MIN_SAFE_INTEGER),
+    maxY: BigInt(Number.MIN_SAFE_INTEGER),
+  };
+
 
   constructor(application, viewport) {
     this.application = application;
@@ -40,7 +47,6 @@ class DockerNetworkViewer
     const roadElement = new Ground00();
     this.roadWidth = roadElement.width();
     this.roadHeight = roadElement.height();
-
   }
 
   initContainersMatrix()  {
@@ -80,36 +86,11 @@ class DockerNetworkViewer
     }
   }
 
-  getMemoryThreshold(usage) {
-    let thresholdIndex = 0;
-    this.memoryUsageThresholds.map((threshold) => {
-      if(usage < threshold.thresholds) {
-        return threshold;
-      }
-      thresholdIndex++;
-    });
-
-    return this.memoryUsageThresholds[thresholdIndex] ?? this.memoryUsageThresholds[this.memoryUsageThresholds.length - 1];
-  }
-
   async drawContainers(containers) {
     const layoutMatrix = this.initContainersMatrix();
-    const {minX, minY, maxX, maxY} = this.getBounds(containers);
-    const handledContainers = {};
+    this.computeBounds(containers);
 
     Object.values(containers).map(async (container) => {
-      if(handledContainers[container.Id]) {
-        return;
-      }
-
-      let {x, y} = this.computeContainerCoords(
-        container,
-        minX,
-        minY,
-        maxX,
-        maxY,
-      );
-
       const composeName = container.getComposeName();
       if(composeName) {
         const compose = this.application.getCompose(composeName);
@@ -117,97 +98,43 @@ class DockerNetworkViewer
           const friendContainers = compose.getContainers();
 
           if(Object.values(friendContainers).length > 1) {
-            this.drawHouseGroup(layoutMatrix, friendContainers, x, y);
+            this.drawHouseGroup(layoutMatrix, friendContainers);
             return;
           }
         }
       }
 
+      let {x, y} = this.computeContainerCoords(container);
       ({x, y} = this.getClosestFreeCoords(layoutMatrix, x, y));
-
       const house = await this.drawHouse(container, x, y);
       // house.addClass('smoke');
       layoutMatrix[x][y].push(house);
     });
   }
 
-  getBounds(containers) {
-    let minX = BigInt(Number.MAX_SAFE_INTEGER);
-    let minY = BigInt(Number.MAX_SAFE_INTEGER);
-    let maxX = BigInt(Number.MIN_SAFE_INTEGER);
-    let maxY = BigInt(Number.MIN_SAFE_INTEGER);
-
-    Object.values(containers).map((container) => {
-      let containerId = container.Id;
-      let containerLeft = BigInt('0x' + containerId.substring(0,32))
-      let containerRight = BigInt('0x' + containerId.substring(32,64));
-      minX = containerLeft < minX ? containerLeft : minX;
-      minY = containerRight < minY ? containerRight : minY;
-      maxX = containerLeft > maxX ? containerLeft : maxX;
-      maxY = containerRight > maxY ? containerRight : maxY;
-    });
-
-    return {minX, minY, maxX, maxY};
-  }
-
-  getClosestFreeCoords(layoutMatrix, startX, startY) {
-    const rows = layoutMatrix.length;
-    const cols = layoutMatrix[0].length;
-
-    let x = startX, y = startY;
-    let step = 1, dir = 0;
-
-    const directions = [
-      [1, 0],  // Droite
-      [0, 1],  // Bas
-      [-1, 0], // Gauche
-      [0, -1]  // Haut
-    ];
-
-    if (layoutMatrix[x][y].length === 0) return {x, y}; // Déjà libre
-
-    while (step < Math.max(rows, cols)) {
-      for (let i = 0; i < 2; i++) { // 2 fois chaque step avant d'incrémenter
-        for (let j = 0; j < step; j++) {
-          x += directions[dir][0];
-          y += directions[dir][1];
-
-          if (x >= 0 && y >= 0 && x < rows && y < cols && layoutMatrix[x][y].length === 0) {
-            return {x, y}; // Premier emplacement libre trouvé
-          }
-        }
-        dir = (dir + 1) % 4; // Tourner dans la spirale
-      }
-      step++; // Augmenter le pas après 2 itérations
-    }
-
-    return null; // Aucun espace libre trouvé
-  }
-
-
-
-  computeContainerCoords(container, minX, minY, maxX, maxY) {
-    let containerId = container.Id;
-    let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
-    let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
-
-    const rangeX = maxX - minX;
-    const rangeY = maxY - minY;
-
-    let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
-    let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
-
-    x = Math.min(x, this.xCells - 1);
-    y = Math.min(y, this.yCells - 1);
-
-    return {x, y};
-  }
-
   async drawHouseGroup(layoutMatrix, containers) {
 
+    const firstContainer = Object.values(containers)[0];
+    let {x, y} = this.computeContainerCoords(firstContainer);
+    ({x, y} = this.getClosestFreeCoords(layoutMatrix, x, y));
+    let house = await this.drawHouse(firstContainer, x, y);
+    layoutMatrix[x][y].push(house);
+
+    Object.values(containers).map(async (container, index) => {
+      if(index === 0) {
+        return;
+      }
+
+      ({x, y} = this.getClosestFreeCoords(layoutMatrix, x, y));
+      let house = await this.drawHouse(container, x, y);
+      layoutMatrix[x][y].push(house);
+    });
   }
 
   async drawHouse(container, x, y) {
+    if(container.rendered) {
+      return;
+    }
     const board = this.viewport.getBoard();
     const area = board.getAreaAt(0, 0);
 
@@ -216,6 +143,8 @@ class DockerNetworkViewer
       y * this.cellHeight,
       new House00()
     );
+
+    container.rendered = true;
 
     container.setRpgEngineData({
       element: house,
@@ -241,8 +170,11 @@ class DockerNetworkViewer
 
     house.addClass('state--' + container.State)
     house.setInnerHTML(`
-      <div class="docker-container-name">
+      <div class="container__name">
         ${container.Names[0]}
+      </div>
+      <div class="container__memory-usage">
+        ${memoryUsage ? (memoryUsage / 1024 / 1024).toFixed(2) + 'mb' : 'N/A'}
       </div>
     `);
     house.data.container = container;
@@ -251,7 +183,7 @@ class DockerNetworkViewer
   }
 
 
-  drawRoads(containers) {
+  drawNetworks(containers) {
 
     const networks = {};
 
@@ -287,7 +219,6 @@ class DockerNetworkViewer
       let offsetLeft = fromContainer.rpgEngine.data.element.width() / 2;
       let offsetTop = fromContainer.rpgEngine.data.element.height();
 
-
       for(let i = 1 ; i < connectedCells.length ; i++) {
         if(!networks[networkName][i]) {
           continue;
@@ -321,6 +252,8 @@ class DockerNetworkViewer
     });
 
     this.drawRoadTrees(roadsMatrix);
+
+    return networks;
   };
 
   drawRoadTrees(matrix) {
@@ -437,7 +370,6 @@ class DockerNetworkViewer
     }
   }
 
-
   drawRoad(networkName, x, y) {
     const area = this.viewport.getBoard().getAreaAt(0, 0);
     const road = area.addElement(
@@ -448,6 +380,98 @@ class DockerNetworkViewer
     road.addClass('network');
     road.addClass('network--' + networkName);
     return road;
+  }
+
+  // compute methods =============================
+
+  computeBounds(containers) {
+    let minX = BigInt(Number.MAX_SAFE_INTEGER);
+    let minY = BigInt(Number.MAX_SAFE_INTEGER);
+    let maxX = BigInt(Number.MIN_SAFE_INTEGER);
+    let maxY = BigInt(Number.MIN_SAFE_INTEGER);
+
+    Object.values(containers).map((container) => {
+      let containerId = container.Id;
+      let containerLeft = BigInt('0x' + containerId.substring(0,32))
+      let containerRight = BigInt('0x' + containerId.substring(32,64));
+      minX = containerLeft < minX ? containerLeft : minX;
+      minY = containerRight < minY ? containerRight : minY;
+      maxX = containerLeft > maxX ? containerLeft : maxX;
+      maxY = containerRight > maxY ? containerRight : maxY;
+    });
+
+    this.bounds.minX = minX;
+    this.bounds.minY = minY;
+    this.bounds.maxX = maxX;
+    this.bounds.maxY = maxY;
+
+    return this.bounds;
+  }
+
+  getClosestFreeCoords(layoutMatrix, startX, startY) {
+    const rows = layoutMatrix.length;
+    const cols = layoutMatrix[0].length;
+
+    let x = startX, y = startY;
+    let step = 1, dir = 0;
+
+    const directions = [
+      [1, 0],  // Droite
+      [0, 1],  // Bas
+      [-1, 0], // Gauche
+      [0, -1]  // Haut
+    ];
+
+    if (layoutMatrix[x][y].length === 0) return {x, y}; // Déjà libre
+
+    while (step < Math.max(rows, cols)) {
+      for (let i = 0; i < 2; i++) { // 2 fois chaque step avant d'incrémenter
+        for (let j = 0; j < step; j++) {
+          x += directions[dir][0];
+          y += directions[dir][1];
+
+          if (x >= 0 && y >= 0 && x < rows && y < cols && layoutMatrix[x][y].length === 0) {
+            return {x, y}; // Premier emplacement libre trouvé
+          }
+        }
+        dir = (dir + 1) % 4; // Tourner dans la spirale
+      }
+      step++; // Augmenter le pas après 2 itérations
+    }
+
+    return null; // Aucun espace libre trouvé
+  }
+
+  computeContainerCoords(container) {
+
+    const {minX, minY, maxX, maxY} = this.bounds;
+
+    let containerId = container.Id;
+    let containerLeft = BigInt('0x' + containerId.substring(0,32)) - minX;
+    let containerTop = BigInt('0x' + containerId.substring(32,64)) - minY;
+
+    const rangeX = maxX - minX;
+    const rangeY = maxY - minY;
+
+    let x = Number((containerLeft * BigInt(this.xCells)) / rangeX);
+    let y = Number((containerTop * BigInt(this.yCells)) / rangeY);
+
+    x = Math.min(x, this.xCells - 1);
+    y = Math.min(y, this.yCells - 1);
+
+    return {x, y};
+  }
+
+  getMemoryThreshold(usage) {
+    let thresholdIndex = 0;
+    this.memoryUsageThresholds.map((threshold) => {
+      if(usage < threshold.thresholds) {
+        return threshold;
+      }
+      thresholdIndex++;
+    });
+
+    return this.memoryUsageThresholds[thresholdIndex] ?? this.memoryUsageThresholds[this.memoryUsageThresholds.length - 1];
   }
 }
 

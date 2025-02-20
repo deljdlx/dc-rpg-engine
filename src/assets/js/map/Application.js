@@ -3,6 +3,11 @@ class Application
 
   _elementsClasses = {};
   _viewport;
+  _container;
+  _width;
+  _height;
+
+
   listeners = {};
 
   apiGetAreaUrl = './backend/index.php';
@@ -14,13 +19,26 @@ class Application
    * @param {int} height
    */
   constructor(selector, width, height) {
+    this._container = document.querySelector(selector);
+    this._width = width;
+    this._height = height;
+
+    console.log('%cApplication.js :: 26 =============================', 'color: #f00; font-size: 1rem');
+    console.log(this._width);
+    console.log(this._height);
+
+
     Application.mainInstance = this;
     this._viewport = new Viewport(
       this,
-      document.querySelector(selector),
-      width,
-      height,
+      this._container,
+      this._width,
+      this._height,
     );
+  }
+
+  clear() {
+    this._viewport.clear();
   }
 
   addEventListener(name, callback) {

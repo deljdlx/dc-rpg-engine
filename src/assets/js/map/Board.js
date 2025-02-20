@@ -18,6 +18,17 @@ class Board extends Element
     }
   }
 
+  clear() {
+    super.clear();
+    this.renderer.clear();
+    Object.keys(this.areas).map(x => {
+      Object.keys(this.areas[x]).map(y => {
+        this.areas[x][y].clear();
+      });
+    });
+    this.render();
+  }
+
   async initializeAsync(callback) {
     let promises = []
     for(let x = -1 ; x < 2 ; x++) {
