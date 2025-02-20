@@ -121,9 +121,6 @@ class InfraWatcher
       labels: containers.map(container => container.Labels),
     };
 
-    console.log('%cInfraWatcher.js :: 124 =============================', 'color: #f00; font-size: 1rem');
-    console.log(descriptor);
-
     const newChecksum = await this.getChecksum(descriptor);
     if(this.lastContainersChecksum === null) {
       this.lastContainersChecksum = newChecksum
