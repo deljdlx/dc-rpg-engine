@@ -1,7 +1,7 @@
 services:
   rpg-engine:
     container_name: rpg-engine
-    build: .
+    build: ./compose
     restart: always
     env_file:
       - .env
