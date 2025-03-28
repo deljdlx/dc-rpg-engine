@@ -80,9 +80,10 @@ class Viewport
     this.renderer = new ViewportRenderer(this);
 
     this.character = new Character();
+    this.character.isMain(true);
     this.character.x(this.width() / 2);
     this.character.y(this.height() / 2);
-    this.character.moveSpeed(300);
+    this.character.moveSpeed(100);
     this.character.setApplication(this.getApplication());
 
     this.board = new Board(this);
@@ -235,6 +236,8 @@ class Viewport
 
     this._timestamp = timestamp;
 
+    this.getBoard().update(timestamp);
+
     if(this.moving === 0) {
       return;
     }
@@ -244,10 +247,8 @@ class Viewport
 
     this.updateCharacter(increment);
 
-
-    this.getBoard().update();
-    this.renderer.update();
-    this.character.update();
+    this.renderer.update(timestamp);
+    this.character.update(timestamp);
   }
 
   updateCharacter(increment) {

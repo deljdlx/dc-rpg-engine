@@ -16,6 +16,8 @@ class Area extends Element
    */
   mapY;
 
+  _eventPrefix = 'area.';
+
   /**
    *
    * @param {Board} board
@@ -38,6 +40,21 @@ class Area extends Element
         originalEvent: event,
       });
     })
+  }
+
+  update(timestamp) {
+    this.getRenderer().update();
+
+    this.getChildren().forEach(child => {
+      child.update(timestamp);
+    });
+
+    this.handle(this._eventPrefix + 'update', {
+      element: this,
+    });
+
+    this.needUpdate(false);
+
   }
 
   getCoordX() {

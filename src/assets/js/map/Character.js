@@ -1,6 +1,9 @@
 class Character extends Element
 {
 
+  _isMain = false;
+  _timestamp = 0 ;
+
   animationIndex = 0;
   direction;
 
@@ -21,6 +24,15 @@ class Character extends Element
     this.setRenderer(new CharacterRenderer(this));
   }
 
+  isMain(value = null) {
+    if(value === null) {
+      return this._isMain;
+    }
+    else {
+      this._isMain = value;
+    }
+  }
+
   getSpriteSheetOffsetLeft() {
     return this.spriteSheetOffsetLeft;
   }
@@ -37,13 +49,40 @@ class Character extends Element
     return this.animationIndex;
   }
 
-  update() {
-    const tickInterval = Math.round(this.moveSpeed() / 80);
+  update(timestamp) {
+    if(!this._timestamp) {
+      this._timestamp = timestamp;
+    }
+
+    const tickInterval = Math.round(1000 / this.moveSpeed() / 2);
     this.tick = (++this.tick % tickInterval);
     if(this.tick === 0) {
       this.animationIndex = (++this.animationIndex % 3);
     }
-    this.getRenderer().update();
+
+    if(this.isMoving() && this.y() < this._targetY) {
+      this.direction = 'down';
+      this.y(this.y() + this.moveSpeed());
+    }
+    else if(this.isMoving() && this.x() < this._targetX) {
+      this.direction = 'right';
+      this.x(this.x() + this.moveSpeed());
+    }
+
+
+    if(this.isMoving()) {
+      this.needUpdate(true);
+      if(
+        Math.abs(this._targetX - this.x()) <= this._targetHitZone
+        && Math.abs(this._targetY - this.y()) <= this._targetHitZone
+        && this.isMoving()
+      ) {
+        this._moving = false;
+        this._onMoveEnd(this);
+      }
+    }
+
+    super.update(timestamp);
   }
 
   setDirection(direction) {

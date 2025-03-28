@@ -4,6 +4,11 @@ class Element
 
   _application;
 
+  /**
+   * @type {Viewport}
+   */
+  _viewport;
+
   manualZ = false;
   /**
    * @type {BoundingBox}
@@ -37,7 +42,7 @@ class Element
   /**
    * @type {BoundingBox}
    */
-   collisionBoundingBox;
+  collisionBoundingBox;
 
 
   /**
@@ -81,7 +86,7 @@ class Element
   _targetHitZone = 2;
   _onMoveEnd = () => null;
   _moving = false;
-  _moveSpeed = 100;
+  _moveSpeed = 0;
 
 
   _eventPrefix = 'element.';
@@ -92,6 +97,7 @@ class Element
   {
 
     this._application = Application.mainInstance;
+    this._viewport = this._application.getViewport();
 
 
     this.geometry = new Geometry();
@@ -184,10 +190,6 @@ class Element
   }
 
   handle(name, data = {}) {
-    // console.log('%cElement.js :: 131 =============================', 'color: #f00; font-size: 1rem');
-    // console.log(name);
-    // console.log(this);
-    // console.log(this._listeners);
     if(typeof(this._listeners[name]) !== 'undefined') {
       this._listeners[name].map(callback => {
         callback(data);
@@ -237,35 +239,20 @@ class Element
   }
 
 
-  update() {
-    if(this.isMoving() && this.y() < this._targetY) {
-      this.direction = 'down';
-      this.y(this.y() + this.moveSpeed());
-    }
-    else if(this.isMoving() && this.x() < this._targetX) {
-      this.direction = 'right';
-      this.x(this.x() + this.moveSpeed());
-    }
-
+  update(timestamp) {
     if(this.parent) {
       this.parent.updateCollisionBoundingBox(this);
     }
 
-    if(this.needUpdate() || this.isMoving()) {
-      if(
-        Math.abs(this._targetX - this.x()) <= this._targetHitZone
-        && Math.abs(this._targetY - this.y()) <= this._targetHitZone
-        && this.isMoving()
-      ) {
-        this._moving = false;
-        this._onMoveEnd(this);
-      }
+    this.handle(this._eventPrefix + 'update', {
+      element: this,
+    });
+    this.getChildren().forEach(child => {
+      child.update();
+    });
 
-      this.getRenderer().update();
-      this.getChildren().forEach(element => {
-        element.update();
-      });
-    }
+    this.getRenderer().update(timestamp);
+
     this.needUpdate(false);
   }
 
@@ -273,20 +260,6 @@ class Element
   getParent() {
     return this.parent;
   }
-
-
-  update2() {
-    if(this.needUpdate()) {
-      this.getRenderer().update();
-
-      this.getChildren().forEach(element => {
-        element.update();
-      });
-
-    }
-    this.needUpdate(false);
-  }
-
 
   // ===========================
 

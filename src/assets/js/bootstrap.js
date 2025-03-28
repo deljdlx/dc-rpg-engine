@@ -99,6 +99,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
 
+  // woman.addEventListener('element.update', (event) => {
+  //   console.group('%cbootstrap.js :: 103 =============================', 'color: #ff4822; font-size: 1rem');
+
+  //   console.log(event.element.isMoving());
+  //   console.log(event.element.x());
+  //   console.log(event.element._targetX);
+
+
+
+  //   console.groupEnd();
+  // });
+
+  // // woman.setDirection('right');
+  // woman.moveSpeed(40);
+  // woman._targetX = woman.x() + 300;
+  // woman.isMoving(true);
+  // woman.update();
+
+
   viewport.render();
   // viewport.renderDebug();
   viewport.run();

@@ -1,6 +1,6 @@
 class Board extends Element
 {
-  areas = {};
+  _areas = {};
 
   constructor(viewport) {
     super(0, 0, viewport.width(), viewport.height());
@@ -21,9 +21,9 @@ class Board extends Element
   clear() {
     super.clear();
     this.renderer.clear();
-    Object.keys(this.areas).map(x => {
-      Object.keys(this.areas[x]).map(y => {
-        this.areas[x][y].clear();
+    Object.keys(this._areas).map(x => {
+      Object.keys(this._areas[x]).map(y => {
+        this._areas[x][y].clear();
       });
     });
     this.render();
@@ -62,7 +62,18 @@ class Board extends Element
         return area;
       });
     }
-    return this.areas[x][y];
+    return this._areas[x][y];
+  }
+
+
+  update(timestamp) {
+    super.update(timestamp);
+    Object.keys(this._areas).map(x => {
+      Object.keys(this._areas[x]).map(y => {
+        this._areas[x][y].update(timestamp);
+      });
+    });
+    this.render();
   }
 
 
@@ -75,7 +86,7 @@ class Board extends Element
       return area;
     }
 
-    return this.areas[x][y];
+    return this._areas[x][y];
   }
 
   getAreaAt(x, y) {
@@ -83,45 +94,45 @@ class Board extends Element
       this.loadArea(x, y);
     }
 
-    return this.areas[x][y];
+    return this._areas[x][y];
   }
 
   freeArea(x, y) {
     if(!this.areaExistsAt(x, y)) {
       return false;
     }
-    const area = this.areas[x][y];
+    const area = this._areas[x][y];
     area.getRenderer().clear();
-    delete this.areas[x][y];
+    delete this._areas[x][y];
 
     return area;
   }
 
   areaExistsAt(x, y) {
-    if(typeof(this.areas[x]) === 'undefined') {
+    if(typeof(this._areas[x]) === 'undefined') {
       return false;
     }
-    if(typeof(this.areas[x][y]) === 'undefined') {
+    if(typeof(this._areas[x][y]) === 'undefined') {
       return false;
     }
     return true;
   }
 
   createAreaAt(x, y) {
-    if(typeof(this.areas[x]) === 'undefined') {
-      this.areas[x] = {};
+    if(typeof(this._areas[x]) === 'undefined') {
+      this._areas[x] = {};
     }
-    if(typeof(this.areas[x][y]) === 'undefined') {
-      this.areas[x][y] = {};
+    if(typeof(this._areas[x][y]) === 'undefined') {
+      this._areas[x][y] = {};
     }
     const area = new Area(this, x , y);
-    this.areas[x][y] = area;
+    this._areas[x][y] = area;
     this.addElement(x * this.width(), y * this.height(), area);
-    return this.areas[x][y];
+    return this._areas[x][y];
   }
 
   getAreas() {
-    return this.areas;
+    return this._areas;
   }
 }
 

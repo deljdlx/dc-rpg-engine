@@ -37,6 +37,13 @@ class Application
     );
   }
 
+  /**
+   * @returns {Viewport}
+   */
+  getViewport() {
+    return this._viewport;
+  }
+
   clear() {
     this._viewport.clear();
   }

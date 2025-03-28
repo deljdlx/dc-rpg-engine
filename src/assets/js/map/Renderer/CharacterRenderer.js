@@ -32,14 +32,17 @@ class CharacterRenderer extends Renderer
   }
 
 
-  update() {
+  update(timestamp) {
+    super.update(timestamp);
+    const animationIndex = this.getElement().getAnimationIndex();
+    const left = animationIndex * -this.getElement().width() - this.getElement().getSpriteSheetOffsetLeft();
+    const top = this.spriteDirectionOffsets[this.getElement().getDirection()] - this.getElement().getSpriteSheetOffsetTop();
+    this.domSprite.style.backgroundPosition = `${left}px ${top}px`;
 
-      super.update();
-      const animationIndex = this.getElement().getAnimationIndex();
-      const left = animationIndex * -this.getElement().width() - this.getElement().getSpriteSheetOffsetLeft();
-      const top = this.spriteDirectionOffsets[this.getElement().getDirection()] - this.getElement().getSpriteSheetOffsetTop();
-      this.domSprite.style.backgroundPosition = `${left}px ${top}px`;
+    if(this._element.isMain()) {
+      return;
+    }
+    // this.dom.style.left = this.getElement().x() + 'px';
+    // this.dom.style.border = 'solid 4px #f0f';
   }
-
-
 }
