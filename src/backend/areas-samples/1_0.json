@@ -1,0 +1,116 @@
+[
+    {
+        "name": "74ccb79a-5846-ea42-e704-5596112e07ba",
+        "x": 979,
+        "y": 380,
+        "element": "Tree00"
+    },
+    {
+        "name": "76c7f582-f80c-b057-6cfd-1ee8a4d1b4f1",
+        "x": 1040,
+        "y": 305,
+        "element": "Tree00"
+    },
+    {
+        "name": "55b7c82b-58d6-2064-93ac-49d18ed47213",
+        "x": 1124,
+        "y": 346,
+        "element": "Tree00"
+    },
+    {
+        "name": "cffe01f2-9219-312d-398b-8b100ee9ef07",
+        "x": 916,
+        "y": 353,
+        "element": "Tree00"
+    },
+    {
+        "name": "ebfdc7c5-eb2c-84bb-6c27-5d0653500c85",
+        "x": 444,
+        "y": 285,
+        "element": "Tree00"
+    },
+    {
+        "name": "634eb865-65f0-dbac-6fdb-a0a770d0c804",
+        "x": 1088,
+        "y": 584,
+        "element": "Tree00"
+    },
+    {
+        "name": "c26a85d0-261b-d8b3-347d-f75a4072d080",
+        "x": 878,
+        "y": 288,
+        "element": "House01"
+    },
+    {
+        "name": "ff59552c-22a2-00e7-c388-f534b552b7f7",
+        "x": 1056,
+        "y": 697,
+        "element": "House01"
+    },
+    {
+        "name": "741a7346-3118-5a78-ad4c-25911cd8737e",
+        "x": 352,
+        "y": 69,
+        "element": "Tree00"
+    },
+    {
+        "name": "698aaf44-4ff3-1459-046f-9b0322d3ceec",
+        "x": 809,
+        "y": 321,
+        "element": "Tree00"
+    },
+    {
+        "name": "fdd74139-8374-fe9c-cc74-a075d9c4a270",
+        "x": 862,
+        "y": 24,
+        "element": "Tree00"
+    },
+    {
+        "name": "15b54a38-e34e-2504-052e-6552f81e8246",
+        "x": 899,
+        "y": 89,
+        "element": "Tree00"
+    },
+    {
+        "name": "322b4f87-8f4f-6b31-8581-1413c8047324",
+        "x": 689,
+        "y": 664,
+        "element": "Tree00"
+    },
+    {
+        "name": "00e24c72-a7e0-1de2-d729-2026db13fe39",
+        "x": 500,
+        "y": 591,
+        "element": "Tree00"
+    },
+    {
+        "name": "3afde3aa-f0ec-e1d4-a7fe-5e1d36f1c4e2",
+        "x": 558,
+        "y": 602,
+        "element": "Tree00"
+    },
+    {
+        "name": "aa1e9a8c-0978-b750-f69b-23c5a74a0543",
+        "x": 813,
+        "y": 545,
+        "element": "House01"
+    },
+    {
+        "name": "f8f494f0-8430-2547-ca0e-b7a8a06d8595",
+        "x": 138,
+        "y": 173,
+        "element": "House01"
+    },
+    {
+        "name": "61334686-def9-59b0-fdb6-b2c95446fc83",
+        "x": 1317,
+        "y": 182,
+        "element": "House01"
+    },
+    {
+        "name": "797c2244-830b-9187-dbca-176ec21e05c9",
+        "x": 78,
+        "y": 95,
+        "element": "Tree00"
+    }
+]
