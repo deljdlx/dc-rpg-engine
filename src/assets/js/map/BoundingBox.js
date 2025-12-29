@@ -1,3 +1,6 @@
+/**
+ * BoundingBox - Represents a rectangular boundary for collision detection
+ */
 class BoundingBox
 {
 
@@ -7,32 +10,33 @@ class BoundingBox
   _element;
 
   /**
-   * @type {number}
+   * @type {Number}
    */
   _x0 = null;
 
   /**
-   * @type {number}
+   * @type {Number}
    */
   _x1 = null;
 
   /**
-   * @type {number}
+   * @type {Number}
    */
   _y0 = null;
 
   /**
-   * @type {number}
+   * @type {Number}
    */
   _y1 = null;
 
   /**
-   * @type {boolean}
+   * @type {Boolean}
    */
   _collided = false;
 
   /**
-   * @param {Element|null} element
+   * Create a bounding box
+   * @param {Element|null} element - Element to create bounds for
    */
   constructor(element = null) {
     if(element) {
@@ -45,8 +49,9 @@ class BoundingBox
   }
 
   /**
-   * @param {boolean} value
-   * @returns {boolean}
+   * Get or set the collision state
+   * @param {Boolean|null} value - New collision state or null to get current
+   * @returns {Boolean} Current collision state
    */
   collided(value = null) {
     if(value !== null) {
@@ -57,8 +62,9 @@ class BoundingBox
   }
 
   /**
-   * @param {BoundingBox} element
-   * @returns {BoundingBox}
+   * Update this bounding box to encompass another bounding box
+   * @param {BoundingBox} boundingBox - The bounding box to include
+   * @returns {BoundingBox} This bounding box for chaining
    */
   updateWithBoundingBox(boundingBox) {
 
@@ -82,8 +88,9 @@ class BoundingBox
   }
 
   /**
-   * @param {Element} parentElement
-   * @param {Element} childElement
+   * Update this bounding box to include a child element's bounds
+   * @param {Element} parentElement - Parent element
+   * @param {Element} childElement - Child element to include
    */
   updateWithRelativeElement(parentElement, childElement) {
     if(
@@ -133,7 +140,9 @@ class BoundingBox
 
   // ===========================
   /**
-   * @param {BoudingBox} boudingBox
+   * Check if this bounding box collides with another
+   * @param {BoundingBox} boundingBox - The bounding box to check against
+   * @returns {Boolean} True if the boxes collide
    */
   isCollided(boundingBox) {
     if(this.isUndefined() || boundingBox.isUndefined()) {
@@ -149,7 +158,8 @@ class BoundingBox
   }
 
   /**
-   * @returns {boolean}
+   * Check if this bounding box is undefined (has null coordinates)
+   * @returns {Boolean} True if any coordinate is null
    */
   isUndefined() {
     return this._x0 === null || this._x1 === null || this._y0 === null || this._y1 === null;

@@ -1,7 +1,15 @@
+/**
+ * Board - Manages the game world divided into areas
+ * Handles dynamic loading and unloading of areas
+ */
 class Board extends Element
 {
   areas = {};
 
+  /**
+   * Create a new board
+   * @param {Viewport} viewport - The parent viewport
+   */
   constructor(viewport) {
     super(0, 0, viewport.width(), viewport.height());
     this._viewport = viewport;
@@ -10,6 +18,9 @@ class Board extends Element
     this.renderer = new BoardRenderer(this);
   }
 
+  /**
+   * Initialize the board with a 3x3 grid of areas
+   */
   initialize() {
     for(let x = -1 ; x < 2 ; x++) {
       for(let y = -1 ; y < 2 ; y++) {
@@ -18,6 +29,9 @@ class Board extends Element
     }
   }
 
+  /**
+   * Clear the board and all areas
+   */
   clear() {
     super.clear();
     this.renderer.clear();
@@ -29,6 +43,11 @@ class Board extends Element
     this.render();
   }
 
+  /**
+   * Initialize board asynchronously by loading area data from backend
+   * @param {Function} callback - Called for each loaded area
+   * @returns {Promise<Array>} Promise resolving when all areas are loaded
+   */
   async initializeAsync(callback) {
     let promises = []
     for(let x = -1 ; x < 2 ; x++) {
@@ -40,6 +59,13 @@ class Board extends Element
     return Promise.all(promises);
   }
 
+  /**
+   * Load an area asynchronously from backend
+   * @param {Number} x - Area X coordinate
+   * @param {Number} y - Area Y coordinate
+   * @param {Function} callback - Called when area is loaded
+   * @returns {Promise<Area>} The loaded area
+   */
   async loadAreaAsync(x, y, callback) {
     if(!this.areaExistsAt(x, y)) {
 
