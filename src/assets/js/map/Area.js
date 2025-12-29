@@ -1,3 +1,7 @@
+/**
+ * Area - Represents a section of the game map
+ * Areas are organized in a grid and loaded dynamically
+ */
 class Area extends Element
 {
   /**
@@ -17,10 +21,10 @@ class Area extends Element
   mapY;
 
   /**
-   *
-   * @param {Board} board
-   * @param {Number} x
-   * @param {Number} y
+   * Create a new area
+   * @param {Board} board - The parent board
+   * @param {Number} x - Grid X coordinate
+   * @param {Number} y - Grid Y coordinate
    */
   constructor(board, x, y) {
     super(0, 0, board.width(), board.height());

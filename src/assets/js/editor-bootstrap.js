@@ -35,14 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const gameConsole = new GameConsole(application, '#game-console');
   gameConsole.addEntry('Hello world');
 
-  application.addEventListener('map.update', (event) => {
-    // console.log(event);
-  });
-
   application.addEventListener('element.collision', (event) => {
     event.target.getRenderer().getDom().classList.add('collided');
     gameConsole.addEntry('collision');
-    console.log(event.target);
   });
 
   application.addEventListener('element.collision.end', (event) => {
@@ -60,19 +55,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-
-
   const viewport = application.getViewport();
   const board = viewport.getBoard();
   await board.initializeAsync((area) => {
-    // console.log('%cbootstrap.js :: 57 =============================', 'color: #f00; font-size: 1rem');
-    // console.log("INITIALIZED");
-    // console.log(area);
-    // console.log(area.getChildren());
   });
 
   viewport.render();
-  // viewport.renderDebug();
   viewport.run();
 
 

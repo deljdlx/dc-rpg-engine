@@ -11,9 +11,21 @@ require __DIR__ . '/src/Area.php';
 $x = filter_input(INPUT_GET, 'x', FILTER_VALIDATE_INT);
 $y = filter_input(INPUT_GET, 'y', FILTER_VALIDATE_INT);
 
-// IMPORTANT
-// JDLX_TODO
-$file = __DIR__.'/areas/'.$x.'_'.$y.'.json';
+if ($x === false || $y === false || $x === null || $y === null) {
+    http_response_code(400);
+    echo '[]';
+    return;
+}
+
+// Validate coordinates are within reasonable bounds
+if (abs($x) > 1000 || abs($y) > 1000) {
+    http_response_code(400);
+    echo '[]';
+    return;
+}
+
+$filename = $x . '_' . $y . '.json';
+$file = __DIR__ . '/areas/' . $filename;
 
 if(!is_file($file)) {
     echo '[]';

@@ -29,10 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const gameConsole = new GameConsole(application, '#game-console');
   gameConsole.addEntry('<em>Hello my friend, what can I do for you ?</em>');
 
-  application.addEventListener('map.update', (event) => {
-    // console.log(event);
-  });
-
   application.addEventListener('element.collision', (event) => {
 
     event.target.getRenderer().getDom().classList.add('collided');
@@ -41,8 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       event.target.getRenderer().getDom().classList.remove('shake');
     }, 500);
     gameConsole.addEntry('collision');
-
-    console.log(event.target);
   });
 
   application.addEventListener('element.collision.end', (event) => {
@@ -64,23 +58,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   await board.initializeAsync((area) => {
-    // console.log('%cbootstrap.js :: 57 =============================', 'color: #f00; font-size: 1rem');
-    // console.log("INITIALIZED");
-    // console.log(area);
-    // console.log(area.getChildren());
   });
 
   const flower = board.getAreaAt(0, 0).addElement(0, 300, new Flower00());
   flower.addEventListener('element.trigger', () => {
-    console.log('%cbootstrap.js :: 56 =============================', 'color: #f00; font-size: 1rem');
-    console.log("ICI");
   });
 
-
   flower.addEventListener('element.click', (event) => {
-    console.log('%cbootstrap.js :: 65 =============================', 'color: #f00; font-size: 1rem');
-    console.log('click on flower detected');
-  })
+  });
 
 
 
@@ -93,8 +78,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   woman.addEventListener('element.collision.end', (event) => {
-    console.log('%cbootstrap.js :: 86 =============================', 'color: #f00; font-size: 1rem');
-    console.log("END COLLISION");
     woman.clearQuickReaction();
   });
 
