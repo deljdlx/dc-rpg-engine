@@ -88,6 +88,13 @@ class Element
   _listeners = {};
 
 
+  /**
+   * Create a new element
+   * @param {Number|null} x - Initial X position
+   * @param {Number|null} y - Initial Y position
+   * @param {Number|null} width - Element width
+   * @param {Number|null} height - Element height
+   */
   constructor(x = null, y = null, width = null, height = null)
   {
 
@@ -97,7 +104,6 @@ class Element
     this.geometry = new Geometry();
     this.setRenderer(new Renderer(this));
 
-    // emtpy collision bouding box
     this.collisionBoundingBox = new BoundingBox(this);
 
 
@@ -109,6 +115,9 @@ class Element
     this.boundingBox = new BoundingBox(this);
   }
 
+  /**
+   * Clear the element's renderer and all children
+   */
   clear() {
     this.getRenderer().clear();
     this.children.forEach(child => {
@@ -116,6 +125,9 @@ class Element
     });
   }
 
+  /**
+   * Destroy the element and remove it from its parent
+   */
   destroy() {
     if(this.parent) {
       this.parent.removeChild(this);
@@ -127,6 +139,10 @@ class Element
     this.getRenderer().clear();
   }
 
+  /**
+   * Remove a child element
+   * @param {Element} element - The element to remove
+   */
   removeChild(element) {
     this.children = this.children.filter(child => child !== element);
     this.childrenByName = Object.keys(this.childrenByName).reduce((accumulator, name) => {
@@ -139,6 +155,11 @@ class Element
 
 
 
+  /**
+   * Set the renderer for this element
+   * @param {Renderer} renderer - The renderer instance
+   * @returns {Element} This element for chaining
+   */
   setRenderer(renderer) {
     this.renderer = renderer;
     this.dom = this.renderer.getDom();
@@ -147,19 +168,34 @@ class Element
     return this;
   }
 
+  /**
+   * Get the DOM element
+   * @returns {HTMLElement}
+   */
   getDom() {
     return this.dom;
   }
 
+  /**
+   * Set inner HTML content
+   * @param {String} html - HTML content
+   */
   setInnerHTML(html) {
     this.renderer.setInnerHTML(html);
   }
 
+  /**
+   * Add a CSS class to the element
+   * @param {String} className - Class name to add
+   */
   addClass(className) {
     this.renderer.addClass(className);
   }
 
 
+  /**
+   * Register DOM event handlers
+   */
   registerEvents() {
     this.dom.addEventListener('click', (event) => {
       this.handle('element.click', {
@@ -174,6 +210,12 @@ class Element
 
   // ===========================
 
+  /**
+   * Add an event listener to this element
+   * @param {String} name - Event name
+   * @param {Function} callback - Event handler function
+   * @returns {Number} Index of the listener in the listeners array
+   */
   addEventListener(name, callback) {
     if(typeof(this._listeners[name]) === 'undefined') {
       this._listeners[name] = [];
@@ -183,6 +225,11 @@ class Element
     return this._listeners[name].length - 1;
   }
 
+  /**
+   * Trigger an event on this element
+   * @param {String} name - Event name
+   * @param {Object} data - Event data
+   */
   handle(name, data = {}) {
     if(typeof(this._listeners[name]) !== 'undefined') {
       this._listeners[name].map(callback => {
@@ -194,10 +241,19 @@ class Element
   }
 
   // ===========================
+  /**
+   * Get the application instance
+   * @returns {Application}
+   */
   getApplication() {
     return this._application;
   }
 
+  /**
+   * Set the application instance
+   * @param {Application} application
+   * @returns {Application}
+   */
   setApplication(application) {
     this._application = application;
     return application;
@@ -205,9 +261,9 @@ class Element
   // ===========================
 
   /**
-   *
-   * @param {?boolean} value
-   * @returns {boolean}
+   * Get or set the static position flag
+   * @param {Boolean|null} value - New value or null to get current value
+   * @returns {Boolean} Current static position state
    */
   staticPosition(value = null) {
     if(value  !== null) {
@@ -216,6 +272,11 @@ class Element
     return this._staticPosition;
   }
 
+  /**
+   * Get or set the movement speed
+   * @param {Number|null} value - New speed or null to get current value
+   * @returns {Number} Current move speed
+   */
   moveSpeed(value = null) {
     if(value !== null) {
       this._moveSpeed = value;
@@ -224,6 +285,11 @@ class Element
     return this._moveSpeed;
   }
 
+  /**
+   * Get or set the moving state
+   * @param {Boolean|null} value - New state or null to get current state
+   * @returns {Boolean} Whether the element is currently moving
+   */
   isMoving(value = null) {
     if(value !== null) {
       this._moving = value;
@@ -233,6 +299,9 @@ class Element
   }
 
 
+  /**
+   * Update the element's state and rendering
+   */
   update() {
     if(this.isMoving() && this.y() < this._targetY) {
       this.direction = 'down';
@@ -266,6 +335,10 @@ class Element
   }
 
 
+  /**
+   * Get the parent element
+   * @returns {Element|null}
+   */
   getParent() {
     return this.parent;
   }
@@ -273,6 +346,11 @@ class Element
 
   // ===========================
 
+  /**
+   * Get or set the element this one is positioned relative to
+   * @param {Element|null} element - Element to position relative to, or null to get current
+   * @returns {Element|null}
+   */
   relativeTo(element = null) {
     if(element !== null) {
       this._relativeTo = element;
@@ -281,6 +359,10 @@ class Element
     return this._relativeTo;
   }
 
+  /**
+   * Get the relative offsets from parent elements
+   * @returns {{x: Number, y: Number}} Offset coordinates
+   */
   getRelativeToOffsets() {
     if(!this._relativeTo) {
       return {
@@ -297,22 +379,46 @@ class Element
   }
 
 
+  /**
+   * Get or set the element width
+   * @param {Number|null} value - New width or null to get current value
+   * @returns {Number} Current width
+   */
   width(value = null) {
     return this.geometry.width(value);
   }
 
+  /**
+   * Get or set the element height
+   * @param {Number|null} value - New height or null to get current value
+   * @returns {Number} Current height
+   */
   height(value = null) {
     return this.geometry.height(value);
   }
 
+  /**
+   * Get or set the element X position
+   * @param {Number|null} value - New X position or null to get current value
+   * @returns {Number} Current X position
+   */
   x(value = null) {
     return this.geometry.x(value);
   }
 
+  /**
+   * Get or set the element Y position
+   * @param {Number|null} value - New Y position or null to get current value
+   * @returns {Number} Current Y position
+   */
   y(value = null) {
     return this.geometry.y(value);
   }
 
+  /**
+   * Get the absolute X offset including all parent offsets
+   * @returns {Number}
+   */
   offsetX() {
     if(this.parent) {
       return this.x() + this.parent.offsetX();
@@ -321,6 +427,10 @@ class Element
     return this.x();
   }
 
+  /**
+   * Get the absolute Y offset including all parent offsets
+   * @returns {Number}
+   */
   offsetY() {
     if(this.parent) {
       return this.y() + this.parent.offsetY();
@@ -329,6 +439,10 @@ class Element
     return this.y();
   }
 
+  /**
+   * Create a new child element
+   * @returns {Element} The newly created child element
+   */
   createElement() {
     const element = new Element();
     element.setApplication(this.getApplication());
@@ -340,6 +454,14 @@ class Element
     return element;
   }
 
+  /**
+   * Add an element as a child at specified position
+   * @param {Number} x - X position
+   * @param {Number} y - Y position
+   * @param {Element} element - Element to add
+   * @param {String} name - Name identifier for the element
+   * @returns {Element} The added element
+   */
   addElement(x = 0, y = 0, element, name) {
     element.setApplication(this.getApplication());
     this.children.push(element);
@@ -362,6 +484,15 @@ class Element
     return element;
   }
 
+  /**
+   * Create a collision zone for this element
+   * @param {Number} x - X offset of collision zone
+   * @param {Number} y - Y offset of collision zone
+   * @param {Number} width - Width of collision zone
+   * @param {Number} height - Height of collision zone
+   * @param {String} type - Type of collision ('collision' or 'trigger')
+   * @returns {BoundingBox} The created collision zone
+   */
   createCollisionZone(x = null, y = null, width = null, height = null, type = 'collision') {
 
     const zone = new BoundingBox(this);

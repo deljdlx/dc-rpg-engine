@@ -12,12 +12,17 @@ class Character extends Element
   tick = 0;
 
   constructor(x = null, y = null, spriteSheetOffsetLeft = 0, spriteSheetOffsetTop = 0) {
-    super(x, y, 48, 48);
+    super(x, y, Constants.CHARACTER_WIDTH, Constants.CHARACTER_HEIGHT);
 
     this.spriteSheetOffsetLeft = spriteSheetOffsetLeft;
     this.spriteSheetOffsetTop = spriteSheetOffsetTop;
 
-    this.createCollisionZone(16, 24, 14, 12);
+    this.createCollisionZone(
+      Constants.CHARACTER_COLLISION_OFFSET_X,
+      Constants.CHARACTER_COLLISION_OFFSET_Y,
+      Constants.CHARACTER_COLLISION_WIDTH,
+      Constants.CHARACTER_COLLISION_HEIGHT
+    );
     this.setRenderer(new CharacterRenderer(this));
   }
 

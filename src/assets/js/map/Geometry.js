@@ -3,12 +3,12 @@ class Geometry
   /**
    * @type {Number}
    */
-  _width = 16;
+  _width = Constants.DEFAULT_ELEMENT_WIDTH;
 
   /**
    * @type {Number}
    */
-  _height = 16;
+  _height = Constants.DEFAULT_ELEMENT_HEIGHT;
   /**
    * @type {Coordinates}
    */

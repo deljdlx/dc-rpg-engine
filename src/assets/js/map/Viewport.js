@@ -35,7 +35,7 @@ class Viewport
   loop;
 
   // pixels per second
-  speed = 300;
+  speed = Constants.DEFAULT_VIEWPORT_SPEED;
 
   /**
    * @type {Board}
@@ -82,7 +82,7 @@ class Viewport
     this.character = new Character();
     this.character.x(this.width() / 2);
     this.character.y(this.height() / 2);
-    this.character.moveSpeed(300);
+    this.character.moveSpeed(Constants.DEFAULT_MOVE_SPEED);
     this.character.setApplication(this.getApplication());
 
     this.board = new Board(this);
@@ -148,7 +148,7 @@ class Viewport
    */
   getCurrentAreaCoordinates() {
     const x = Math.floor(this.character.x() / this.board.width());
-    const y = Math.floor((this.character.y() + 48) / this.board.height());
+    const y = Math.floor((this.character.y() + Constants.CHARACTER_HEIGHT) / this.board.height());
     return {
       x: x,
       y: y
