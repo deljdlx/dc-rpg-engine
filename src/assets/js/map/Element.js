@@ -184,10 +184,6 @@ class Element
   }
 
   handle(name, data = {}) {
-    // console.log('%cElement.js :: 131 =============================', 'color: #f00; font-size: 1rem');
-    // console.log(name);
-    // console.log(this);
-    // console.log(this._listeners);
     if(typeof(this._listeners[name]) !== 'undefined') {
       this._listeners[name].map(callback => {
         callback(data);
@@ -275,19 +271,6 @@ class Element
   }
 
 
-  update2() {
-    if(this.needUpdate()) {
-      this.getRenderer().update();
-
-      this.getChildren().forEach(element => {
-        element.update();
-      });
-
-    }
-    this.needUpdate(false);
-  }
-
-
   // ===========================
 
   relativeTo(element = null) {
@@ -350,7 +333,6 @@ class Element
     const element = new Element();
     element.setApplication(this.getApplication());
     this.children.push(element);
-    // JDLX_TODO handle childrenByName
 
     element.setParent(this);
     element.relativeTo(this);
@@ -370,7 +352,7 @@ class Element
     element.y(y);
 
     this.updateCollisionBoundingBox(element);
-    this.updateBoudingBox(element);
+    this.updateBoundingBox(element);
 
     if(this.parent) {
       this.parent.updateCollisionBoundingBox(this);
@@ -417,7 +399,7 @@ class Element
   /**
    * @param {Element}
    */
-  updateBoudingBox(element) {
+  updateBoundingBox(element) {
     const boundingBox = new BoundingBox();
     boundingBox.x0(element.x());
     boundingBox.y0(element.y());
@@ -427,7 +409,7 @@ class Element
 
     this.boundingBox.updateWithBoundingBox(boundingBox);
     if(this.parent) {
-      this.parent.updateBoudingBox(this);
+      this.parent.updateBoundingBox(this);
     }
   }
 
@@ -498,9 +480,6 @@ class Element
         if(!element.collided(null, type)) {
           this.collidedWith[type].push(element);
 
-          // console.log('%cElement.js :: 403 =============================', 'color: #f00; font-size: 1rem');
-          // console.log("ICI");
-
           this.handle(this._eventPrefix + type, {
             element: this,
             target: element,
@@ -568,8 +547,8 @@ class Element
    * @returns {Element}
    */
   setParent(element) {
-    this.parent = element
-    return parent;
+    this.parent = element;
+    return this;
   }
 
   getChildren() {

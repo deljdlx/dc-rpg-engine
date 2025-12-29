@@ -186,7 +186,7 @@ class Viewport
     this.board.loadArea(at.x, at.y - 1);
   }
 
-  freeAreasFromCurrentPosision(radius = 2) {
+  freeAreasFromCurrentPosition(radius = 2) {
     const at = this.getCurrentAreaCoordinates();
 
     this.board.freeArea(at.x - 2, at.y - 2);
@@ -240,7 +240,7 @@ class Viewport
     }
 
     this.loadAreasFromCurrentPosition();
-    this.freeAreasFromCurrentPosision();
+    this.freeAreasFromCurrentPosition();
 
     this.updateCharacter(increment);
 

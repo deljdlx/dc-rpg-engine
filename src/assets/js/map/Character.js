@@ -59,8 +59,6 @@ class Character extends Element
   clearQuickReaction() {
     this.getRenderer()._domQuickReaction.innerHTML = '';
     this.getRenderer()._domQuickReaction.classList.remove('quickReaction--enable');
-    console.log('%cCharacter.js :: 62 =============================', 'color: #f00; font-size: 1rem');
-    console.log("ICI");
     return this;
   }
 }

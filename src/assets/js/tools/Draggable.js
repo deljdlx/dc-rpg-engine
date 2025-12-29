@@ -24,7 +24,6 @@ class Draggable {
   }
 
   onContextMenu(e) {
-    console.log("contextmenu");
     this.handle('contextmenu', e);
   }
 
@@ -35,9 +34,6 @@ class Draggable {
     this.startY = e.clientY - offsetY;
 
     this.dragStarted = true;
-
-    console.log('%cDraggable.js :: 32 =============================', 'color: #f00; font-size: 1rem');
-    console.log("MOUSE DOWN");
 
     this.handle('mouseDown', e);
   }
@@ -79,9 +75,5 @@ class Draggable {
         callback(data);
       });
     }
-
-    // const event = new Event("name", data);
-    // this.element.dispatchEvent(event);
-
   }
 }

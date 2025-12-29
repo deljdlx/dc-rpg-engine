@@ -60,10 +60,6 @@ function getArea00() {
   console.log(area00.getBoundingBox());
   */
 
-  // area00.addGroup(getHouseGroup00(), 8, 6);
-  // area00.addElement('surface', new Flower02(), 2, 5);
-  // area00.addElement('surface', new Fountain00(), 5, 7);
-
   return area00;
 }
 
@@ -72,30 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const viewport = new Viewport();
 
-  // viewport.layers.surface.map.areas[0][0].grid();
-
   const area00 = new AreaDescriptor();
-    const group = new MapElementGroup();
+  const group = new MapElementGroup();
 
-    group.addElement(new House00(), 2, 2);
-    group.addElement(new House00(), 8, 2);
-
-    console.log('%capplication.js :: 80 =============================', 'color: #f00; font-size: 1rem');
-    console.log(group.getBoundingBox());
+  group.addElement(new House00(), 2, 2);
+  group.addElement(new House00(), 8, 2);
 
   area00.addGroup(group, 0, 0);
-
-  console.log('%capplication.js :: 86 =============================', 'color: #f00; font-size: 1rem');
-  console.log(area00.getBoundingBox());
 
   viewport.loadAreaDescriptor(0, 0, area00);
 
   viewport.render();
-
-
-
-  // viewport.loadAreaDescriptor(0, 0, getArea00());
-
 
   viewport.launch();
 

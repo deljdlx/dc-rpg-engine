@@ -23,11 +23,6 @@ class Application
     this._width = width;
     this._height = height;
 
-    console.log('%cApplication.js :: 26 =============================', 'color: #f00; font-size: 1rem');
-    console.log(this._width);
-    console.log(this._height);
-
-
     Application.mainInstance = this;
     this._viewport = new Viewport(
       this,
@@ -66,9 +61,9 @@ class Application
     return Object.keys(this._elementsClasses);
   }
 
-  instanciate(name) {
+  instantiate(name) {
     if(typeof(this._elementsClasses[name]) === 'undefined') {
-      console.error('Element with name ' + name + ' does no exists');
+      console.error('Element with name ' + name + ' does not exist');
       return false;
     }
     return new this._elementsClasses[name];
@@ -86,9 +81,7 @@ class Application
 
 
   async fetchArea(x, y) {
-    // JDLX_TODO
-
-    const data = `&x=${x}&y=${y}`;
+    const data = `x=${x}&y=${y}`;
     return fetch(this.apiGetAreaUrl + '?' + data).then(response => response.json());
   }
 }

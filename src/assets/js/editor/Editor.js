@@ -26,8 +26,6 @@ class Editor
 
   initializeSpritePanel() {
     this.application.getRegisteredElements().forEach(elementName => {
-      console.log('%cEditor.js :: 29 =============================', 'color: #f00; font-size: 1rem');
-      console.log(elementName);
       this.registerSprite(elementName);
     });
   }
@@ -36,7 +34,7 @@ class Editor
     const spriteContainer = document.createElement('div');
     spriteContainer.classList.add('editor-sprite-container');
 
-    const sprite = this.application.instanciate(spriteName);
+    const sprite = this.application.instantiate(spriteName);
     const element = sprite.render();
     spriteContainer.style.width = sprite.getBoundingBox().width() + 'px';
     spriteContainer.style.height = sprite.getBoundingBox().height() + 'px';
@@ -44,7 +42,6 @@ class Editor
 
     sprite.getAllChildren().forEach(child => {
       element.append(child.render());
-      // this.dom.append(child.getDom());
     });
 
     spriteContainer.addEventListener('click', () => {
@@ -83,12 +80,11 @@ class Editor
   initializeAreaEvents() {
 
     this.application.addEventListener('area.click', (event) => {
-      console.log('%ceditor-bootstrap.js :: 52 =============================', 'color: #f00; font-size: 1rem');
       const area = event.area;
       this.currentArea = area;
 
 
-      const sprite = this.application.instanciate(this.selectedSprite);
+      const sprite = this.application.instantiate(this.selectedSprite);
 
       const x = event.areaX - sprite.width() / 2;
       const y = event.areaY - sprite.height() / 2;
@@ -115,7 +111,6 @@ class Editor
     for(let x in areas) {
       for(let y in areas[x]) {
         const area = areas[x][y];
-        console.log(area);
 
         const elements = area.getChildren();
         elements.forEach(element => {
@@ -129,16 +124,10 @@ class Editor
 
     const draggable = new DraggableElement(element);
     draggable.addEventListener('mouseUp', data => {
-      console.log('%cEditor.js :: 106 =============================', 'color: #f00; font-size: 1rem');
-      // console.log(data);
-      console.log(element.getParent());
       this.saveArea(element.getParent());
     });
 
     draggable.addEventListener('contextmenu', (data) => {
-      console.log('%cEditor.js :: 128 =============================', 'color: #f0f; font-size: 1rem');
-      console.log("contextmenu");
-      console.log(data);
       data.event.preventDefault();
       data.element.destroy();
       this.saveArea(element.getParent());
@@ -155,8 +144,6 @@ class Editor
       y: area.getCoordY(),
     };
 
-    console.log(data);
-
 
     const response = await fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -165,15 +152,11 @@ class Editor
       credentials: "same-origin", // include, *same-origin, omit
       headers: {
         "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
       },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify(data), // body data type must match "Content-Type" header
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify(data),
     });
-
-
-    // return response.json(); // parses JSON response into native JavaScript objects
   }
 
 

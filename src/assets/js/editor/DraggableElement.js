@@ -54,8 +54,6 @@ class DraggableElement
     });
 
     this.draggable.addEventListener('contextmenu', (event) => {
-      console.log('%cDraggableElement.js :: 57 =============================', 'color: #f00; font-size: 1rem');
-  ;
       this.handle('contextmenu', {
         event: event,
         element: element
